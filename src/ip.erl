@@ -143,7 +143,8 @@ new_ip_package(HeaderRaw, Payload) ->
        fragment(HeaderRaw2, Reamin, MaxPayloadSize / 8, [First])
   end.
 
--spec unpack_ip_head(_) -> _.
+-spec unpack_ip_head(binary()) ->
+                      {boolean(), #ip_head{}, binary() | {#frag_key{}, #frag{}}}.
 unpack_ip_head(Pack) ->
   <<_:4, IHL:4, _/binary>> = Pack,
   L = IHL * 4,
