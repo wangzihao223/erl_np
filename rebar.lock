@@ -1,0 +1,4 @@
+[{<<"tuntap">>,
+  {git,"https://github.com/wangzihao223/erltuntap.git",
+       {ref,"990f8f394fdf4309f15117e00358c13e1b90bee0"}},
+  0}].
