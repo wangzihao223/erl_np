@@ -28,6 +28,26 @@
          destination_addr = nil,
          option = nil,
          padding = nil}).
+
+%% @doc ip_head() 类型别名，用于函数参数和 Dialyzer 类型检查。
+-type ip_head() :: #ip_head{
+    version          :: 4,
+    ihl              :: non_neg_integer(),
+    dscp             :: non_neg_integer(),
+    ecn              :: 0..3,
+    total_length     :: non_neg_integer(),
+    identification   :: non_neg_integer() | nil,
+    flags            :: non_neg_integer() | nil,
+    fragment_offset  :: non_neg_integer() | nil,
+    time_to_live     :: non_neg_integer() | nil,
+    protocol         :: non_neg_integer() | nil,
+    header_checksum  :: non_neg_integer() | nil,
+    source_addr      :: non_neg_integer() | nil,
+    destination_addr :: non_neg_integer()| nil,
+    option           :: list(head_option()) | nil,
+    padding          :: binary() | nil
+}.
+
 -record(head_option,
         {copied_flag = 0,
          option_class = 0,
@@ -35,11 +55,58 @@
          option_type = 0,
          option_length = nil,
          option_pyaload = <<>>}).
--record(frag_key, {src_ip, dst_ip, id, protocol}).
--record(frag, {offset, mf, payload}).
 
-%%
-%%
+-type head_option() :: #head_option{
+                          copied_flag :: non_neg_integer(),
+                          option_class :: non_neg_integer(),
+                          option_num :: non_neg_integer(),
+                          option_type :: non_neg_integer(),
+                          option_length :: non_neg_integer(),
+                          option_pyaload :: binary()
+                         }.
+
+%% @doc 表示一个 IP 分片的数据结构，用于在分片重组过程中存储分片信息。
+-record(frag, {
+    offset,   %% 分片偏移量，单位为 8 字节（对应 IPv4 Fragment Offset 字段）
+    mf,       %% More Fragments 标志，类型为 boolean()，true 表示还有更多分片
+    payload   %% 分片所携带的有效数据（二进制）
+}).
+
+%% @doc frag 类型别名，用于类型推导和文档生成。
+-type frag() :: #frag{
+    offset  :: non_neg_integer(),
+    mf      :: boolean(),
+    payload :: binary()
+}.
+
+%% @doc 唯一标识一个 IP 分片包的键（四元组）。
+%% 用于在分片重组过程中进行定位和区分。
+
+-record(frag_key, {
+    src_ip,     %% 源 IP 地址，类型为 int
+    dst_ip,     %% 目标 IP 地址，类型为 int TODO: 是否化为 inet:ip_address()
+    id,         %% IP 标识字段（16 位整数）
+    protocol    %% 协议号（如 6=TCP, 17=UDP）rfc790
+}).
+
+%% @doc 类型别名：frag_key() 用于 IP 分片重组标识。
+-type frag_key() :: #frag_key{
+    src_ip   :: non_neg_integer(), %% source ip address
+    dst_ip   :: non_neg_integer(), %% Destination ip address
+    id       :: integer(),         %% identification number 16 bits
+    protocol :: integer()          %% protocol number , please read rfc790
+}.
+
+
+-type config_arg() ::
+      is_support_ecn | is_congest | has_fragment
+    | {service, best_effort | expedited_forwarding | assured_forwarding}
+    | {fragment_offset, df | mf}
+    | {protocol, tcp | udp | icmp | gre | esp | ah | ospf | stcp}
+    | {src_ip, string()}
+    | {dst_ip, string()}
+    | {id, non_neg_integer()}.
+
 %%September 1981
 %Internet Protocol
 %3. SPECIFICATION
@@ -60,6 +127,19 @@
 %+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 %| Options | Padding |
 %+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+-spec init_config([Args]) -> Config when
+    Args :: [is_support_ecn|is_congest | has_fragment | {service, atom()}| {fragment_offset, atom()}| 
+             {protocol, atom()}|{src_ip, string()} | {dst_ip, string()}| {id, non_neg_integer()}],
+    Config :: #{service := best_effort | expedited_forwarding | assured_forwarding,
+              is_support_ecn := boolean(),
+              is_congest := boolean(),
+              fragment_offset := df | mf,
+              has_fragment := boolean(),
+              protocol := tcp | udp | icmp | gre | esp | ah| ospf| stcp,
+              src_ip := string(),
+              dst_ip := string(),
+              id := non_neg_integer() }.
 init_config(Args) ->
   Config = init_config_1(),
   Opts =
@@ -85,8 +165,8 @@ init_config_1() ->
     #{service => best_effort,
       is_support_ecn => true,
       is_congest => false,
-      %fragment_flag => df,
-      %has_fragment => false,
+      fragment_flag => df,
+      has_fragment => false,
       fragment_offset => 0,
       protocol => tcp,
       src_ip => "192.168.0.1",
@@ -127,6 +207,25 @@ make_ip_head_raw(Config) ->
              option = Option},
   HeaderRaw.
 
+-doc """
+make a ip package , Constructs a complete IP packet or a list of fragments if the payload exceeds the MTU.
+
+
+Arguments:
+  - `HeaderRaw`: IP header record (ip_head())
+  - `Payload`: binary data 
+
+Returns:
+  - A list of binary-encoded IP packets
+
+_Example:_
+```erlang
+1> new_ip_package(Header, <<"Hello">>).
+[<<...>>]
+""".
+-spec new_ip_package(HeaderRaw, Payload) -> Package when HeaderRaw :: ip_head(),
+                                                         Payload :: binary(),
+                                                         Package :: [binary()].
 new_ip_package(HeaderRaw, Payload) ->
   L = get_header_length(HeaderRaw, #{}),
   if size(Payload) + L =< ?MTU ->
@@ -143,8 +242,41 @@ new_ip_package(HeaderRaw, Payload) ->
        fragment(HeaderRaw2, Reamin, MaxPayloadSize / 8, [First])
   end.
 
--spec unpack_ip_head(binary()) ->
-                      {boolean(), #ip_head{}, binary() | {#frag_key{}, #frag{}}}.
+
+-doc """
+Parses a raw IP packet and returns either the complete payload or information
+required for fragment reassembly.
+
+解析原始 IP 数据包，并返回完整载荷，或用于 IP 分片重组所需的信息。
+
+### return
+
+Returns a 3-tuple `{IsFrag, IPHead, Data}`:
+
+- `IsFrag` :: `boolean()`  
+  
+  是否为分片包：  
+  - `false` 表示此包为完整的 IP 数据包  
+  - `true` 表示此包为 IP 分片（需要重组）
+
+- `IPHead` :: `#ip_head{}`  
+  已解析的 IP 头部结构体
+
+- `Data` ::  
+  - `Payload :: binary()` — 当 `IsFrag = false`，为完整 IP 包的有效载荷  
+  - `{FragKey, Frag}` — 当 `IsFrag = true`，为以下内容：  
+    - `FragKey :: frag_key()` — 用于唯一标识一个 IP 包（例如包含 源 IP、目标 IP、ID、协议）  
+    - `Frag :: frag()` — 当前分片信息（偏移、是否最后一片、数据等）
+
+### example
+
+```erlang
+{false, IPHead, Payload} = unpack_ip_head(RawBin),
+% or
+{true, IPHead, {FragKey, Frag}} = unpack_ip_head(AnotherBin).
+""".
+-spec unpack_ip_head( binary( ) ) -> { boolean( ) , #ip_head{ } , binary( ) | { frag_key() , frag() } } .
+
 unpack_ip_head(Pack) ->
   <<_:4, IHL:4, _/binary>> = Pack,
   L = IHL * 4,
