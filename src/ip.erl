@@ -1,5 +1,24 @@
 -module(ip).
 
+
+-moduledoc """
+INTERNET PROTOCOL
+
+本模块提供以下功能
+
+  - 构建IP数据包，包括IPv4报文头各个字段填充.
+
+  - 解析 IP 数据包，提取报文头及其负载。
+
+  - 支持 IP 分片机制，将超出 MTU 的报文分片传输。
+
+  - 支持 IP 重组机制，将多个分片还原为完整报文。
+
+
+本模块遵循 RFC 791 的 IPv4 协议规范。
+适用于需要用户态处理 IP 层报文的系统。
+""".
+
 -define(DEFAULT, 0).
 -define(EF, 46).
 -define(AF11, 10).
@@ -9,7 +28,7 @@
 -define(MTU, 1500).
 
 -export([init_config/1, new_ip_package/2, make_ip_head_raw/1]).
--export([insert_fragment_buffer/2, check_complete/2, reassemble_frags/2]).
+-export([insert_fragment_buffer/2, check_complete/1, reassemble_frags/1]).
 -export([unpack_ip_head/1]).
 
 -record(ip_head,
@@ -29,7 +48,6 @@
          option = nil,
          padding = nil}).
 
-%% @doc ip_head() 类型别名，用于函数参数和 Dialyzer 类型检查。
 -type ip_head() :: #ip_head{
     version          :: 4,
     ihl              :: non_neg_integer(),
@@ -65,21 +83,24 @@
                           option_pyaload :: binary()
                          }.
 
-%% @doc 表示一个 IP 分片的数据结构，用于在分片重组过程中存储分片信息。
+
+%% doc 表示一个 IP 分片的数据结构，用于在分片重组过程中存储分片信息。
+
 -record(frag, {
     offset,   %% 分片偏移量，单位为 8 字节（对应 IPv4 Fragment Offset 字段）
     mf,       %% More Fragments 标志，类型为 boolean()，true 表示还有更多分片
     payload   %% 分片所携带的有效数据（二进制）
 }).
 
-%% @doc frag 类型别名，用于类型推导和文档生成。
+%%frag 类型别名，用于类型推导和文档生成。
+
 -type frag() :: #frag{
     offset  :: non_neg_integer(),
     mf      :: boolean(),
     payload :: binary()
 }.
 
-%% @doc 唯一标识一个 IP 分片包的键（四元组）。
+%%  唯一标识一个 IP 分片包的键（四元组）。
 %% 用于在分片重组过程中进行定位和区分。
 
 -record(frag_key, {
@@ -89,7 +110,7 @@
     protocol    %% 协议号（如 6=TCP, 17=UDP）rfc790
 }).
 
-%% @doc 类型别名：frag_key() 用于 IP 分片重组标识。
+%%  类型别名：frag_key() 用于 IP 分片重组标识。
 -type frag_key() :: #frag_key{
     src_ip   :: non_neg_integer(), %% source ip address
     dst_ip   :: non_neg_integer(), %% Destination ip address
@@ -113,6 +134,18 @@ Used as input to configuration functions such as `init_config/1`.
     | {src_ip, string()}
     | {dst_ip, string()}
     | {id, non_neg_integer()}.
+
+-type config() :: #{
+    service := best_effort | expedited_forwarding | assured_forwarding,
+    is_support_ecn := boolean(),
+    is_congest := boolean(),
+    has_fragment := boolean(),
+    fragment_offset := df | mf,
+    protocol := tcp | udp | icmp | gre | esp | ah | ospf | stcp,
+    src_ip := string(),
+    dst_ip := string(),
+    id := non_neg_integer()
+}.
 
 
 -doc """
@@ -167,38 +200,6 @@ Used as input to configuration functions such as `init_config/1`.
  - `id`:
    IP identifier used for fragmentation and reassembly
 """.
--type config() :: #{
-    service := best_effort | expedited_forwarding | assured_forwarding,
-    is_support_ecn := boolean(),
-    is_congest := boolean(),
-    has_fragment := boolean(),
-    fragment_offset := df | mf,
-    protocol := tcp | udp | icmp | gre | esp | ah | ospf | stcp,
-    src_ip := string(),
-    dst_ip := string(),
-    id := non_neg_integer()
-}.
-
-%%September 1981
-%Internet Protocol
-%3. SPECIFICATION
-%3.1. Internet Header Format
-%A summary of the contents of the internet header follows:
-%0 1 2 3
-%0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-%+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-%|Version| IHL |Type of Service| Total Length |
-%+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-%| Identification |Flags| Fragment Offset |
-%+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-%| Time to Live | Protocol | Header Checksum |
-%+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-%| Source Address |
-%+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-%| Destination Address |
-%+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-%| Options | Padding |
-%+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 -spec init_config([Args]) -> Config when
     Args :: [config_arg()],
@@ -239,6 +240,19 @@ init_config_1() ->
       id => 0},
   Config.
 
+-doc """
+ Constructs a raw IP header record (`ip_head()`) from a given config map.
+
+
+This function extracts necessary fields from the provided `Config` map,
+including service type, ECN flags, source/destination IPs, protocol, and more.
+It converts these into a structured `#ip_head{}` record that can be further used
+to encode or manipulate IP packets.
+
+""".
+-spec make_ip_head_raw(Config) -> HeaderRaw when
+    Config :: config(),
+    HeaderRaw :: ip_head().
 make_ip_head_raw(Config) ->
   Service = map_get(service, Config),
   SupportECN = map_get(is_support_ecn, Config),
@@ -389,22 +403,101 @@ unpack_ip_head(Pack) ->
        {false, HeaderRaw, {FragKey, Frag}}
   end.
 
+-doc """
+
+Inserts a fragment into a sorted fragment buffer, maintaining order by offset.
+
+this function uses the _difference list_ technique to insert a new fragment
+(`frag()`) into a buffer (a list of `frag()`) ordered by their `offset` field.
+This avoids costly list reversal and preserves performance even for long lists.
+
+## Parameters
+
+  - `Buffer`: A list of `frag()` elements, sorted by `frag#frag.offset`.
+  - `Frag`: A new `frag()` to insert.
+
+## Returns
+
+  - A new list of `frag()` with `Frag` inserted at the correct position.
+
+## Example
+
+```erlang
+1> insert_fragment_buffer([#frag{offset=0}], #frag{offset=1}).
+[#frag{offset=0}, #frag{offset=1}]
+
+""".
+-spec insert_fragment_buffer(Buffer, Frag) -> NewBuffer when
+    Buffer :: [frag()],
+    Frag ::frag(),
+    NewBuffer :: [frag()].
 insert_fragment_buffer(Buffer, Frag) ->
-  insert_fragment_buffer([], Buffer, Frag).
+  DF = insert_fragment_buffer(fun(Tail)-> Tail end, Buffer, Frag),
+  DF([]).
+
+-doc """
+Insert into the buffer in order
+""".
+-spec insert_fragment_buffer(DLAcc, Buff, Frag) -> NewBuffer when
+    DLAcc :: fun((Tail::[Frag]) -> [frag()]),
+    Buff :: [frag()],
+    Frag :: frag(),
+    NewBuffer ::[frag()].
 
 insert_fragment_buffer(L, [], Frag) ->
-  lists:reverse([Frag | L]);
+  fun(Tail) -> L([Frag|Tail])end;
 insert_fragment_buffer(L, [Head | Next], Frag) ->
   HeadOffset = Head#frag.offset,
   Offset = Frag#frag.offset,
   case Offset < HeadOffset of
     true ->
-      Pre = lists:reverse(L),
-      [Pre, Frag, Head | Next];
+      DL = fold_to_diff(Next),
+      fun(Tail)-> L([Frag, Head | DL(Tail)]) end;
     false ->
-      insert_fragment_buffer([Head | L], Next, Frag)
+      L1 = fun(Tail) -> L([Head|Tail]) end,
+      insert_fragment_buffer(L1, Next, Frag)
   end.
 
+-doc """
+Checks whether a fragment buffer contains a complete IP datagram.
+
+This function verifies whether all IP fragments in `Buffer` are:
+1. **Contiguous** — i.e., there are no gaps in the offsets.
+2. **Complete** — i.e., the final fragment has the `mf` (More Fragments) flag set to 0.
+
+It assumes the buffer is sorted by `frag#frag.offset` in ascending order.
+
+## Parameters
+  - `Buffer`: A list of `frag()` structures representing ordered IP fragments.
+
+## Returns
+  - `true` if the fragments are contiguous and complete.
+  - `false` otherwise.
+
+## Example
+
+```erlang
+1> check_complete([#frag{offset=0, payload=<<"abc">>, mf=1},
+                   #frag{offset=3, payload=<<"def">>, mf=0}]).
+true.
+
+2> check_complete([#frag{offset=0, payload=<<"abc">>, mf=1},
+                   #frag{offset=4, payload=<<"def">>, mf=0}]).
+false.  % gap at offset=3
+
+3> check_complete([]).
+false.
+""".
+-spec check_complete(Buffer) -> IsComplete when 
+    Buffer :: [frag()],
+    IsComplete :: boolean().
+check_complete(Buffer) ->
+  check_complete(Buffer, 0).
+
+-spec check_complete(Buffer, Offset) -> IsComplete when
+    Buffer ::[frag()],
+    Offset :: non_neg_integer(),
+    IsComplete :: boolean().
 check_complete([], _Offset) ->
   false;
 check_complete([Frag], Offset) ->
@@ -425,6 +518,32 @@ check_complete([Frag | Next], Offset) ->
        false
   end.
 
+-doc """
+Reassembles a list of IP fragments into a single binary payload.
+
+This function concatenates the payload of each fragment in order,
+building up the complete IP packet payload.
+
+## Parameters
+  - `Buffer`: A list of `frag()` records sorted by offset.
+  - `Acc`: An accumulator binary to append fragments to, typically `<<>>`.
+
+## Returns
+  - A binary representing the reassembled payload.
+
+## Example
+```erlang
+1> reassemble_frags([#frag{payload=<<"abc">>}, #frag{payload=<<"def">>}], <<>>).
+<<"abcdef">>
+""".
+-spec reassemble_frags([frag()]) -> binary().
+reassemble_frags(Buffer) ->
+    reassemble_frags(Buffer, <<>>).
+
+-spec reassemble_frags(Buffer, Acc) -> Payload when
+    Buffer :: [frag()],
+    Acc :: binary(),
+    Payload :: binary().
 reassemble_frags([], Acc) ->
   Acc;
 reassemble_frags([Frag | Next], Acc) ->
@@ -645,8 +764,9 @@ ip_package_creater(Header, Payload, Args) ->
   {<<HeaderBin/binary, Payload/binary>>, Header1}.
 
 add_zero_for_option(Opt) ->
-  ZeroCount = 4 - size(Opt) rem 4 rem 4,
-  <<Opt/binary, 0:ZeroCount/binary>>.
+  ZeroCount = (4 - size(Opt)) rem 4 rem 4,
+
+  <<Opt/binary, 0:(ZeroCount*8)>>.
 
 get_header_length(Header, Args) ->
   Options = Header#ip_head.option,
@@ -698,3 +818,13 @@ ones_complement(Value) ->
 ip_to_int(IpStr) ->
   {ok, {A, B, C, D}} = inet:parse_address(IpStr),
   A bsl 24 bor (B bsl 16) bor (C bsl 8) bor D.
+
+%different lists
+% lists to  different lists
+fold_to_diff(List) ->
+    lists:foldr(fun(Elem, AccFun) ->
+                    _AccFun1 = fun(Tail) -> [Elem | AccFun(Tail)] end
+                end, 
+                _AccFun = fun(Tail) -> Tail end, 
+                List).
+

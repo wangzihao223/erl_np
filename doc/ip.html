@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.38.2">
+    <meta name="project" content="erl_np v0.1.0">
+
+
+    <title>ip — erl_np v0.1.0</title>
+
+    <link rel="stylesheet" href="dist/html-erlang-DQDXQC7W.css" />
+
+    <script defer src="dist/sidebar_items-36A789E5.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-DPJLHKSM.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="readme.html" class="sidebar-projectName" translate="no">
+erl_np
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.1.0
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of erl_np</span>
+            <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+          </label>
+          <button type="submit" class="search-button" aria-label="Submit Search" tabindex="-1">
+            <i class="ri-search-2-line ri-lg" aria-hidden="true"></i>
+          </button>
+          <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+            <i class="ri-close-line ri-lg" title="Cancel search"></i>
+          </button>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">ip</span> 
+      <small class="app-vsn" translate="no">(erl_np v0.1.0)</small>
+
+    </h1>
+
+      <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>INTERNET PROTOCOL</p><p>本模块提供以下功能</p><ul><li><p>构建IP数据包，包括IPv4报文头各个字段填充.</p></li><li><p>解析 IP 数据包，提取报文头及其负载。</p></li><li><p>支持 IP 分片机制，将超出 MTU 的报文分片传输。</p></li><li><p>支持 IP 重组机制，将多个分片还原为完整报文。</p></li></ul><p>本模块遵循 RFC 791 的 IPv4 协议规范。
+适用于需要用户态处理 IP 层报文的系统。</p>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h1>
+<div class="summary-types summary">
+  <h2>
+    <a href="#types">Types</a>
+  </h2>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:config/0" data-no-tooltip="" translate="no">config()</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:config_arg/0" data-no-tooltip="" translate="no">config_arg()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Represents one configuration argument used to construct an IP config map.
+用于构建config()的一个配置参数
+This type is a union of simple atom flags (e.g., <code class="inline">is_support_ecn</code>) and
+key-value tuples (e.g., <code class="inline">{service, best_effort}</code>).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:frag/0" data-no-tooltip="" translate="no">frag()</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:frag_key/0" data-no-tooltip="" translate="no">frag_key()</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:head_option/0" data-no-tooltip="" translate="no">head_option()</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:ip_head/0" data-no-tooltip="" translate="no">ip_head()</a>
+
+      </div>
+
+    </div>
+
+</div>
+<div class="summary-functions summary">
+  <h2>
+    <a href="#functions">Functions</a>
+  </h2>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#check_complete/1" data-no-tooltip="" translate="no">check_complete(Buffer)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Checks whether a fragment buffer contains a complete IP datagram.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#init_config/1" data-no-tooltip="" translate="no">init_config(Args)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Configuration options used for building IP packets.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#insert_fragment_buffer/2" data-no-tooltip="" translate="no">insert_fragment_buffer(Buffer, Frag)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Inserts a fragment into a sorted fragment buffer, maintaining order by offset.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#make_ip_head_raw/1" data-no-tooltip="" translate="no">make_ip_head_raw(Config)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Constructs a raw IP header record (<code class="inline">ip_head()</code>) from a given config map.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#new_ip_package/2" data-no-tooltip="" translate="no">new_ip_package(HeaderRaw, Payload)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>make a ip package , Constructs a complete IP packet or a list of fragments if the payload exceeds the MTU.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#reassemble_frags/1" data-no-tooltip="" translate="no">reassemble_frags(Buffer)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Reassembles a list of IP fragments into a single binary payload.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#unpack_ip_head/1" data-no-tooltip="" translate="no">unpack_ip_head(Pack)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Parses a raw IP packet and returns either the complete payload or information
+required for fragment reassembly.</p></div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="types" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#types">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Types</span>
+    </h1>
+    <div class="types-list">
+<section class="detail" id="t:config/0">
+
+  <div class="detail-header">
+    <a href="#t:config/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">config()</h1>
+
+
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L138" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-type</span> config() ::
+          #{service := best_effort | expedited_forwarding | assured_forwarding,
+            is_support_ecn := <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:boolean/0">boolean</a>(),
+            is_congest := <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:boolean/0">boolean</a>(),
+            has_fragment := <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:boolean/0">boolean</a>(),
+            fragment_offset := df | mf,
+            protocol := tcp | udp | icmp | gre | esp | ah | ospf | stcp,
+            src_ip := <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:string/0">string</a>(),
+            dst_ip := <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:string/0">string</a>(),
+            id := <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>()}.</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="t:config_arg/0">
+
+  <div class="detail-header">
+    <a href="#t:config_arg/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">config_arg()</h1>
+
+
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L129" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-type</span> config_arg() ::
+          is_support_ecn | is_congest | has_fragment |
+          {service, best_effort | expedited_forwarding | assured_forwarding} |
+          {fragment_offset, df | mf} |
+          {protocol, tcp | udp | icmp | gre | esp | ah | ospf | stcp} |
+          {src_ip, <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:string/0">string</a>()} |
+          {dst_ip, <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:string/0">string</a>()} |
+          {id, <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>()}.</pre>
+
+      </div>
+
+<p>Represents one configuration argument used to construct an IP config map.
+用于构建config()的一个配置参数
+This type is a union of simple atom flags (e.g., <code class="inline">is_support_ecn</code>) and
+key-value tuples (e.g., <code class="inline">{service, best_effort}</code>).</p><p>Used as input to configuration functions such as <a href="#init_config/1"><code class="inline">init_config/1</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="t:frag/0">
+
+  <div class="detail-header">
+    <a href="#t:frag/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">frag()</h1>
+
+
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L97" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-type</span> frag() :: #frag{offset :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>(), mf :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:boolean/0">boolean</a>(), payload :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:binary/0">binary</a>()}.</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="t:frag_key/0">
+
+  <div class="detail-header">
+    <a href="#t:frag_key/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">frag_key()</h1>
+
+
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L114" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-type</span> frag_key() ::
+          #frag_key{src_ip :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>(),
+                    dst_ip :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>(),
+                    id :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:integer/0">integer</a>(),
+                    protocol :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:integer/0">integer</a>()}.</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="t:head_option/0">
+
+  <div class="detail-header">
+    <a href="#t:head_option/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">head_option()</h1>
+
+
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L77" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-type</span> head_option() ::
+          #head_option{copied_flag :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>(),
+                       option_class :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>(),
+                       option_num :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>(),
+                       option_type :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>(),
+                       option_length :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>(),
+                       option_pyaload :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:binary/0">binary</a>()}.</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="t:ip_head/0">
+
+  <div class="detail-header">
+    <a href="#t:ip_head/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">ip_head()</h1>
+
+
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L51" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-type</span> ip_head() ::
+          #ip_head{version :: 4,
+                   ihl :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>(),
+                   dscp :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>(),
+                   ecn :: 0..3,
+                   total_length :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>(),
+                   identification :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>() | nil,
+                   flags :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>() | nil,
+                   fragment_offset :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>() | nil,
+                   time_to_live :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>() | nil,
+                   protocol :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>() | nil,
+                   header_checksum :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>() | nil,
+                   source_addr :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>() | nil,
+                   destination_addr :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>() | nil,
+                   option :: [<a href="#t:head_option/0">head_option</a>()] | nil,
+                   padding :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:binary/0">binary</a>() | nil}.</pre>
+
+      </div>
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
+
+  <section id="functions" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h1>
+    <div class="functions-list">
+<section class="detail" id="check_complete/1">
+
+  <div class="detail-header">
+    <a href="#check_complete/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">check_complete(Buffer)</h1>
+
+
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L494" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-spec</span> check_complete(Buffer) -> IsComplete when Buffer :: [<a href="#t:frag/0">frag</a>()], IsComplete :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:boolean/0">boolean</a>().</pre>
+
+      </div>
+
+<p>Checks whether a fragment buffer contains a complete IP datagram.</p><p>This function verifies whether all IP fragments in <code class="inline">Buffer</code> are:</p><ol><li><strong>Contiguous</strong> — i.e., there are no gaps in the offsets.</li><li><strong>Complete</strong> — i.e., the final fragment has the <code class="inline">mf</code> (More Fragments) flag set to 0.</li></ol><p>It assumes the buffer is sorted by <code class="inline">frag#frag.offset</code> in ascending order.</p><h2 id="check_complete/1-parameters" class="section-heading"><a href="#check_complete/1-parameters" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Parameters</span></h2><ul><li><code class="inline">Buffer</code>: A list of <code class="inline">frag()</code> structures representing ordered IP fragments.</li></ul><h2 id="check_complete/1-returns" class="section-heading"><a href="#check_complete/1-returns" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Returns</span></h2><ul><li><code class="inline">true</code> if the fragments are contiguous and complete.</li><li><code class="inline">false</code> otherwise.</li></ul><h2 id="check_complete/1-example" class="section-heading"><a href="#check_complete/1-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup erlang" translate="no"><span class="gp unselectable">1&gt; </span><span class="nf">check_complete</span><span class="p" data-group-id="0396378821-1">(</span><span class="p" data-group-id="0396378821-2">[</span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="0396378821-3">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="ss">payload</span><span class="o">=&lt;</span><span class="o">&lt;</span><span class="s">&quot;abc&quot;</span><span class="p">&gt;&gt;</span><span class="p">,</span><span class="w"> </span><span class="ss">mf</span><span class="o">=</span><span class="mi">1</span><span class="p" data-group-id="0396378821-3">}</span><span class="p">,</span><span class="w">
+                   </span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="0396378821-4">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="ss">payload</span><span class="o">=&lt;</span><span class="o">&lt;</span><span class="s">&quot;def&quot;</span><span class="p">&gt;&gt;</span><span class="p">,</span><span class="w"> </span><span class="ss">mf</span><span class="o">=</span><span class="mi">0</span><span class="p" data-group-id="0396378821-4">}</span><span class="p" data-group-id="0396378821-2">]</span><span class="p" data-group-id="0396378821-1">)</span><span class="p">.</span><span class="w">
+</span><span class="ss">true</span><span class="p">.</span><span class="w">
+
+</span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">check_complete</span><span class="p" data-group-id="0396378821-5">(</span><span class="p" data-group-id="0396378821-6">[</span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="0396378821-7">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="ss">payload</span><span class="o">=&lt;</span><span class="o">&lt;</span><span class="s">&quot;abc&quot;</span><span class="p">&gt;&gt;</span><span class="p">,</span><span class="w"> </span><span class="ss">mf</span><span class="o">=</span><span class="mi">1</span><span class="p" data-group-id="0396378821-7">}</span><span class="p">,</span><span class="w">
+                   </span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="0396378821-8">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="ss">payload</span><span class="o">=&lt;</span><span class="o">&lt;</span><span class="s">&quot;def&quot;</span><span class="p">&gt;&gt;</span><span class="p">,</span><span class="w"> </span><span class="ss">mf</span><span class="o">=</span><span class="mi">0</span><span class="p" data-group-id="0396378821-8">}</span><span class="p" data-group-id="0396378821-6">]</span><span class="p" data-group-id="0396378821-5">)</span><span class="p">.</span><span class="w">
+</span><span class="ss">false</span><span class="p">.</span><span class="w">  </span><span class="c1">% gap at offset=3</span><span class="w">
+
+</span><span class="mi">3</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">check_complete</span><span class="p" data-group-id="0396378821-9">(</span><span class="p" data-group-id="0396378821-10">[</span><span class="p" data-group-id="0396378821-10">]</span><span class="p" data-group-id="0396378821-9">)</span><span class="p">.</span><span class="w">
+</span><span class="ss">false</span><span class="p">.</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="init_config/1">
+
+  <div class="detail-header">
+    <a href="#init_config/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">init_config(Args)</h1>
+
+
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L208" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-spec</span> init_config([Args]) -> Config when Args :: [<a href="#t:config_arg/0">config_arg</a>()], Config :: <a href="#t:config/0">config</a>().</pre>
+
+      </div>
+
+<p>Configuration options used for building IP packets.</p><p> The config map contains settings related to fragmentation,  and protocol.</p><ul><li><p><code class="inline">service</code>:
+dscp 的主要用途是区分网络中不同种类的流量，实现差异化服务，比如优先转发语音、视频，降低延迟等。
+Specifies the Differentiated Services (DiffServ) level. 
+One of:</p><ul><li><code class="inline">best_effort</code></li><li><code class="inline">expedited_forwarding</code></li><li><code class="inline">assured_forwarding</code></li></ul></li><li><p><code class="inline">is_support_ecn</code>:
+是否支持“显式拥塞通知”
+Whether Explicit Congestion Notification (ECN) is supported.</p></li><li><p><code class="inline">is_congest</code>:
+ 是否拥塞
+Whether the sender is in a congestion state.</p></li><li><p><code class="inline">has_fragment</code>:
+是否分片
+Indicates if the IP packet is fragmented.</p></li><li><p><code class="inline">fragment_offset</code>:
+分片偏移量
+Fragmentation flag, either:</p><ul><li><code class="inline">df</code>: Don't Fragment</li><li><code class="inline">mf</code>: More Fragments</li></ul></li><li><p><code class="inline">protocol</code>:
+Upper layer protocol number:
+协议</p><ul><li><code class="inline">tcp</code></li><li><code class="inline">udp</code></li><li><code class="inline">icmp</code></li><li><code class="inline">gre</code></li><li><code class="inline">esp</code></li><li><code class="inline">ah</code></li><li><code class="inline">ospf</code></li><li><code class="inline">stcp</code></li></ul></li><li><p><code class="inline">src_ip</code>:
+Source IP address as string (e.g., <code class="inline">&quot;192.168.0.1&quot;</code>).</p></li><li><p><code class="inline">dst_ip</code>:
+Destination IP address as string.</p></li><li><p><code class="inline">id</code>:
+IP identifier used for fragmentation and reassembly</p></li></ul>
+  </section>
+</section>
+<section class="detail" id="insert_fragment_buffer/2">
+
+  <div class="detail-header">
+    <a href="#insert_fragment_buffer/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">insert_fragment_buffer(Buffer, Frag)</h1>
+
+
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L434" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-spec</span> insert_fragment_buffer(Buffer, Frag) -> NewBuffer
+                                when Buffer :: [<a href="#t:frag/0">frag</a>()], Frag :: <a href="#t:frag/0">frag</a>(), NewBuffer :: [<a href="#t:frag/0">frag</a>()].</pre>
+
+      </div>
+
+<p>Inserts a fragment into a sorted fragment buffer, maintaining order by offset.</p><p>this function uses the <em>difference list</em> technique to insert a new fragment
+(<code class="inline">frag()</code>) into a buffer (a list of <code class="inline">frag()</code>) ordered by their <code class="inline">offset</code> field.
+This avoids costly list reversal and preserves performance even for long lists.</p><h2 id="insert_fragment_buffer/2-parameters" class="section-heading"><a href="#insert_fragment_buffer/2-parameters" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Parameters</span></h2><ul><li><code class="inline">Buffer</code>: A list of <code class="inline">frag()</code> elements, sorted by <code class="inline">frag#frag.offset</code>.</li><li><code class="inline">Frag</code>: A new <code class="inline">frag()</code> to insert.</li></ul><h2 id="insert_fragment_buffer/2-returns" class="section-heading"><a href="#insert_fragment_buffer/2-returns" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Returns</span></h2><ul><li>A new list of <code class="inline">frag()</code> with <code class="inline">Frag</code> inserted at the correct position.</li></ul><h2 id="insert_fragment_buffer/2-example" class="section-heading"><a href="#insert_fragment_buffer/2-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup erlang" translate="no"><span class="gp unselectable">1&gt; </span><span class="nf">insert_fragment_buffer</span><span class="p" data-group-id="0553705705-1">(</span><span class="p" data-group-id="0553705705-2">[</span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="0553705705-3">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">0</span><span class="p" data-group-id="0553705705-3">}</span><span class="p" data-group-id="0553705705-2">]</span><span class="p">,</span><span class="w"> </span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="0553705705-4">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">1</span><span class="p" data-group-id="0553705705-4">}</span><span class="p" data-group-id="0553705705-1">)</span><span class="p">.</span><span class="w">
+</span><span class="p" data-group-id="0553705705-5">[</span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="0553705705-6">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">0</span><span class="p" data-group-id="0553705705-6">}</span><span class="p">,</span><span class="w"> </span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="0553705705-7">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">1</span><span class="p" data-group-id="0553705705-7">}</span><span class="p" data-group-id="0553705705-5">]</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="make_ip_head_raw/1">
+
+  <div class="detail-header">
+    <a href="#make_ip_head_raw/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">make_ip_head_raw(Config)</h1>
+
+
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L256" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-spec</span> make_ip_head_raw(Config) -> HeaderRaw when Config :: <a href="#t:config/0">config</a>(), HeaderRaw :: <a href="#t:ip_head/0">ip_head</a>().</pre>
+
+      </div>
+
+<p>Constructs a raw IP header record (<code class="inline">ip_head()</code>) from a given config map.</p><p>This function extracts necessary fields from the provided <code class="inline">Config</code> map,
+including service type, ECN flags, source/destination IPs, protocol, and more.
+It converts these into a structured <code class="inline">#ip_head{}</code> record that can be further used
+to encode or manipulate IP packets.</p>
+  </section>
+</section>
+<section class="detail" id="new_ip_package/2">
+
+  <div class="detail-header">
+    <a href="#new_ip_package/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">new_ip_package(HeaderRaw, Payload)</h1>
+
+
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L307" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-spec</span> new_ip_package(HeaderRaw, Payload) -> Package
+                        when HeaderRaw :: <a href="#t:ip_head/0">ip_head</a>(), Payload :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:binary/0">binary</a>(), Package :: [<a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:binary/0">binary</a>()].</pre>
+
+      </div>
+
+<p>make a ip package , Constructs a complete IP packet or a list of fragments if the payload exceeds the MTU.</p><p>Arguments:</p><ul><li><code class="inline">HeaderRaw</code>: IP header record (ip_head())</li><li><code class="inline">Payload</code>: binary data </li></ul><p>Returns:</p><ul><li>A list of binary-encoded IP packets</li></ul><p><em>Example:</em></p><pre><code class="makeup erlang" translate="no"><span class="gp unselectable">1&gt; </span><span class="nf">new_ip_package</span><span class="p" data-group-id="4043161287-1">(</span><span class="n">Header</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="4043161287-2">&lt;&lt;</span><span class="s">&quot;Hello&quot;</span><span class="p" data-group-id="4043161287-2">&gt;&gt;</span><span class="p" data-group-id="4043161287-1">)</span><span class="p">.</span><span class="w">
+</span><span class="p" data-group-id="4043161287-3">[</span><span class="p" data-group-id="4043161287-4">&lt;&lt;</span><span class="p">.</span><span class="p">.</span><span class="p">.</span><span class="p" data-group-id="4043161287-4">&gt;&gt;</span><span class="p" data-group-id="4043161287-3">]</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="reassemble_frags/1">
+
+  <div class="detail-header">
+    <a href="#reassemble_frags/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">reassemble_frags(Buffer)</h1>
+
+
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L540" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-spec</span> reassemble_frags([<a href="#t:frag/0">frag</a>()]) -> <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:binary/0">binary</a>().</pre>
+
+      </div>
+
+<p>Reassembles a list of IP fragments into a single binary payload.</p><p>This function concatenates the payload of each fragment in order,
+building up the complete IP packet payload.</p><h2 id="reassemble_frags/1-parameters" class="section-heading"><a href="#reassemble_frags/1-parameters" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Parameters</span></h2><ul><li><code class="inline">Buffer</code>: A list of <code class="inline">frag()</code> records sorted by offset.</li><li><code class="inline">Acc</code>: An accumulator binary to append fragments to, typically <code class="inline">&lt;&lt;&gt;&gt;</code>.</li></ul><h2 id="reassemble_frags/1-returns" class="section-heading"><a href="#reassemble_frags/1-returns" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Returns</span></h2><ul><li>A binary representing the reassembled payload.</li></ul><h2 id="reassemble_frags/1-example" class="section-heading"><a href="#reassemble_frags/1-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup erlang" translate="no"><span class="gp unselectable">1&gt; </span><span class="nf">reassemble_frags</span><span class="p" data-group-id="5892294981-1">(</span><span class="p" data-group-id="5892294981-2">[</span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="5892294981-3">{</span><span class="ss">payload</span><span class="o">=&lt;</span><span class="o">&lt;</span><span class="s">&quot;abc&quot;</span><span class="p">&gt;&gt;</span><span class="p" data-group-id="5892294981-3">}</span><span class="p">,</span><span class="w"> </span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="5892294981-4">{</span><span class="ss">payload</span><span class="o">=&lt;</span><span class="o">&lt;</span><span class="s">&quot;def&quot;</span><span class="p">&gt;&gt;</span><span class="p" data-group-id="5892294981-4">}</span><span class="p" data-group-id="5892294981-2">]</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5892294981-5">&lt;&lt;</span><span class="p" data-group-id="5892294981-5">&gt;&gt;</span><span class="p" data-group-id="5892294981-1">)</span><span class="p">.</span><span class="w">
+</span><span class="p" data-group-id="5892294981-6">&lt;&lt;</span><span class="s">&quot;abcdef&quot;</span><span class="p" data-group-id="5892294981-6">&gt;&gt;</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="unpack_ip_head/1">
+
+  <div class="detail-header">
+    <a href="#unpack_ip_head/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">unpack_ip_head(Pack)</h1>
+
+
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L358" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-spec</span> unpack_ip_head(<a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:binary/0">binary</a>()) ->
+                        {<a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:boolean/0">boolean</a>(),
+                         #ip_head{version :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:term/0">term</a>(),
+                                  ihl :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:term/0">term</a>(),
+                                  dscp :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:term/0">term</a>(),
+                                  ecn :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:term/0">term</a>(),
+                                  total_length :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:term/0">term</a>(),
+                                  identification :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:term/0">term</a>(),
+                                  flags :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:term/0">term</a>(),
+                                  fragment_offset :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:term/0">term</a>(),
+                                  time_to_live :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:term/0">term</a>(),
+                                  protocol :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:term/0">term</a>(),
+                                  header_checksum :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:term/0">term</a>(),
+                                  source_addr :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:term/0">term</a>(),
+                                  destination_addr :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:term/0">term</a>(),
+                                  option :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:term/0">term</a>(),
+                                  padding :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:term/0">term</a>()},
+                         <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:binary/0">binary</a>() | {<a href="#t:frag_key/0">frag_key</a>(), <a href="#t:frag/0">frag</a>()}}.</pre>
+
+      </div>
+
+<p>Parses a raw IP packet and returns either the complete payload or information
+required for fragment reassembly.</p><p>解析原始 IP 数据包，并返回完整载荷，或用于 IP 分片重组所需的信息。</p><h3 id="unpack_ip_head/1-return" class="section-heading"><a href="#unpack_ip_head/1-return" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">return</span></h3><p>Returns a 3-tuple <code class="inline">{IsFrag, IPHead, Data}</code>:</p><ul><li><p><code class="inline">IsFrag</code> :: <code class="inline">boolean()</code>  </p><p>是否为分片包：  </p><ul><li><code class="inline">false</code> 表示此包为完整的 IP 数据包  </li><li><code class="inline">true</code> 表示此包为 IP 分片（需要重组）</li></ul></li><li><p><code class="inline">IPHead</code> :: <code class="inline">#ip_head{}</code><br/>已解析的 IP 头部结构体</p></li><li><p><code class="inline">Data</code> ::  </p><ul><li><code class="inline">Payload :: binary()</code> — 当 <code class="inline">IsFrag = false</code>，为完整 IP 包的有效载荷  </li><li><code class="inline">{FragKey, Frag}</code> — 当 <code class="inline">IsFrag = true</code>，为以下内容：  <ul><li><code class="inline">FragKey :: frag_key()</code> — 用于唯一标识一个 IP 包（例如包含 源 IP、目标 IP、ID、协议）  </li><li><code class="inline">Frag :: frag()</code> — 当前分片信息（偏移、是否最后一片、数据等）</li></ul></li></ul></li></ul><h3 id="unpack_ip_head/1-example" class="section-heading"><a href="#unpack_ip_head/1-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">example</span></h3><pre><code class="makeup erlang" translate="no"><span class="p" data-group-id="2883382246-1">{</span><span class="ss">false</span><span class="p">,</span><span class="w"> </span><span class="n">IPHead</span><span class="p">,</span><span class="w"> </span><span class="n">Payload</span><span class="p" data-group-id="2883382246-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">unpack_ip_head</span><span class="p" data-group-id="2883382246-2">(</span><span class="n">RawBin</span><span class="p" data-group-id="2883382246-2">)</span><span class="p">,</span><span class="w">
+</span><span class="c1">% or</span><span class="w">
+</span><span class="p" data-group-id="2883382246-3">{</span><span class="ss">true</span><span class="p">,</span><span class="w"> </span><span class="n">IPHead</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="2883382246-4">{</span><span class="n">FragKey</span><span class="p">,</span><span class="w"> </span><span class="n">Frag</span><span class="p" data-group-id="2883382246-4">}</span><span class="p" data-group-id="2883382246-3">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">unpack_ip_head</span><span class="p" data-group-id="2883382246-5">(</span><span class="n">AnotherBin</span><span class="p" data-group-id="2883382246-5">)</span><span class="p">.</span></code></pre>
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+      <p>
+
+          <span class="line">
+            <a href="https://hex.pm/packages/erl_np/0.1.0" class="footer-hex-package">Hex Package</a>
+
+            <a href="https://preview.hex.pm/preview/erl_np/0.1.0">Hex Preview</a>
+
+          </span>
+
+        <span class="line">
+          <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+            Search HexDocs
+          </button>
+
+            <a href="erl_np.epub" title="ePub version">
+              Download ePub version
+            </a>
+
+        </span>
+      </p>
+
+      <p class="built-using">
+        Built using
+        <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.38.2) for the
+
+          <a href="https://erlang.org" title="Erlang" target="_blank" translate="no">Erlang programming language</a>
+
+      </p>
+
+    </footer>
+  </div>
+</main>
+</div>
+
+  </body>
+</html>

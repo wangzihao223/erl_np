@@ -44,6 +44,7 @@ read_process(D) ->
     Notice ->
       io:format("INFO:~p~n", [Notice]),
       R = tuntap:tuntap_read_nif(D),
-      io:format("read: => ~p length ~p ~n ", [R, size(R)]),
+      icmp:unpack_echo_msg(),
       read_process(D)
   end.
+

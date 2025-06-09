@@ -1,7 +1,8 @@
 erl_np
 =====
 
-An OTP library
+
+Implementation of the Internet Protocol
 
 Build
 -----
@@ -9,4 +10,3 @@ Build
     $ rebar3 compile
 
 
-sudo tcpdump -i tun0 -nn
