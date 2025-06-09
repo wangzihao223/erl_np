@@ -31,6 +31,9 @@ INTERNET PROTOCOL
 -export([insert_fragment_buffer/2, check_complete/1, reassemble_frags/1]).
 -export([unpack_ip_head/1]).
 
+-export([send/11, send/3]).
+-export([recv/1 ]).
+
 -record(ip_head,
         {version = 4,
          ihl = 0,
@@ -133,6 +136,7 @@ Used as input to configuration functions such as `init_config/1`.
     | {protocol, tcp | udp | icmp | gre | esp | ah | ospf | stcp}
     | {src_ip, string()}
     | {dst_ip, string()}
+    | {ttl, non_neg_integer()}
     | {id, non_neg_integer()}.
 
 -type config() :: #{
@@ -144,9 +148,70 @@ Used as input to configuration functions such as `init_config/1`.
     protocol := tcp | udp | icmp | gre | esp | ah | ospf | stcp,
     src_ip := string(),
     dst_ip := string(),
+    ttl := non_neg_integer(),
     id := non_neg_integer()
 }.
 
+
+-spec send(
+  Device :: reference(),
+  SrcIp :: string(), DstIp :: string(), Proto :: atom(),
+  TOS :: atom(), TTL :: integer(),
+  Payload :: binary(), Len :: integer(), Id :: integer(),
+  DF :: boolean(), Opt :: list()
+) -> ok | {error, term()}.
+
+send(Device, Src, Dst, Proto, TOS, TTL, Buf, _Len, Id, DF, Opt) ->
+    Config = init_config([
+      {src_ip, Src},
+      {dst_ip, Dst},
+      {protocol, Proto},
+      {service, TOS},
+      {id, Id},
+      {ttl, TTL},
+      is_support_ecn,
+      {fragment_offset, if DF -> df; true -> mf end},
+      {option, Opt}
+    ]),
+    Packets = new_ip_package(Config, Buf),
+    %% send via TUN or socket etc.
+    write_to_device(Device, Packets).
+
+
+-spec send(Device,HeaderRaw,Payload) -> Length when
+    Device :: reference(),
+    HeaderRaw :: ip_head(),
+    Payload :: binary(),
+    Length :: non_neg_integer().
+
+send(Device, HeaderRaw, Payload) ->
+  Packets = new_ip_package(HeaderRaw, Payload),
+  write_to_device(Device, Packets).
+
+%BufPTR = buffer pointer
+%prot = protocol
+%result = response
+%OK = datagram received ok
+%Error = error in arguments
+%len = length of buffer
+%src = source address
+%dst = destination address
+%TOS = type of service
+%opt = option da
+%
+-doc"""
+Receive tun data and parse ip protocol package
+""".
+-spec recv(Device::reference()) -> { boolean( ) , ip_head() , binary( ) | { frag_key() , frag() } }.
+recv(Device) ->
+  Fd = tuntap:tuntap_get_fd_nif(Device),
+  tuntap:tuntap_wait_read_nif(Device, Fd, self()),
+  receive
+    {select, Obj, Ref, ready_input}->
+      {Obj, Ref},
+      Pack = tuntap:tuntap_read_nif(Device),
+      unpack_ip_head(Pack)
+  end.
 
 -doc """
  Configuration options used for building IP packets.
@@ -237,6 +302,7 @@ init_config_1() ->
       src_ip => "192.168.0.1",
       dst_ip => "8.8.8.8",
       option => nil,
+      ttl => ?TTL,
       id => 0},
   Config.
 
@@ -260,6 +326,7 @@ make_ip_head_raw(Config) ->
   Protocol = map_get(protocol, Config),
   SrcIP = ip_to_int(map_get(src_ip, Config)),
   DstIP = ip_to_int(map_get(dst_ip, Config)),
+  T2L = map_get(ttl, Config),
   Option =
     case map_get(option, Config) of
       nil ->
@@ -271,7 +338,6 @@ make_ip_head_raw(Config) ->
 
   Dscp = service_to_dscp(Service),
   Ecn = make_ecn(SupportECN, IsCongest),
-  T2L = ?TTL,
   ProtocolNumber = protocol_number(Protocol),
 
   HeaderRaw =
@@ -827,4 +893,23 @@ fold_to_diff(List) ->
                 end, 
                 _AccFun = fun(Tail) -> Tail end, 
                 List).
+
+
+-spec write_to_device(Device, Packets) -> Length when
+    Device :: reference(),
+    Packets :: [binary()],
+    Length :: non_neg_integer().
+
+write_to_device(Device, Packets)->
+  write_to_device(Device, Packets, 0).
+
+write_to_device(_Device, [], Acc) -> Acc;
+write_to_device(Device, [Packet|Next], Acc) -> 
+  Acc1 = case tuntap:tuntap_write_nif(Device, Packet) of
+    {false, _Length} -> error({write_error, nil});
+    false  -> error({write_error, "device error"});
+    {true, L} -> Acc+L
+  end,
+  write_to_device(Device, Next, Acc1).
+
 
