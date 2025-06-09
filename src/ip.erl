@@ -97,7 +97,14 @@
     protocol :: integer()          %% protocol number , please read rfc790
 }.
 
+-doc """
+Represents one configuration argument used to construct an IP config map.
+用于构建config()的一个配置参数
+This type is a union of simple atom flags (e.g., `is_support_ecn`) and
+key-value tuples (e.g., `{service, best_effort}`).
 
+Used as input to configuration functions such as `init_config/1`.
+""".
 -type config_arg() ::
       is_support_ecn | is_congest | has_fragment
     | {service, best_effort | expedited_forwarding | assured_forwarding}
@@ -106,6 +113,71 @@
     | {src_ip, string()}
     | {dst_ip, string()}
     | {id, non_neg_integer()}.
+
+
+-doc """
+ Configuration options used for building IP packets.
+
+ The config map contains settings related to fragmentation,  and protocol.
+
+ - `service`:
+   dscp 的主要用途是区分网络中不同种类的流量，实现差异化服务，比如优先转发语音、视频，降低延迟等。
+   Specifies the Differentiated Services (DiffServ) level. 
+   One of:
+   - `best_effort`
+   - `expedited_forwarding`
+   - `assured_forwarding`
+
+ - `is_support_ecn`:
+   是否支持“显式拥塞通知”
+   Whether Explicit Congestion Notification (ECN) is supported.
+   
+ - `is_congest`:
+    是否拥塞
+   Whether the sender is in a congestion state.
+
+ - `has_fragment`:
+   是否分片
+   Indicates if the IP packet is fragmented.
+
+ - `fragment_offset`:
+   分片偏移量
+   Fragmentation flag, either:
+   - `df`: Don't Fragment
+   - `mf`: More Fragments
+
+ - `protocol`:
+   Upper layer protocol number:
+   协议
+   - `tcp`
+   - `udp`
+   - `icmp`
+   - `gre`
+   - `esp`
+   - `ah`
+   - `ospf`
+   - `stcp`
+
+ - `src_ip`:
+   Source IP address as string (e.g., `"192.168.0.1"`).
+
+ - `dst_ip`:
+   Destination IP address as string.
+
+ - `id`:
+   IP identifier used for fragmentation and reassembly
+""".
+-type config() :: #{
+    service := best_effort | expedited_forwarding | assured_forwarding,
+    is_support_ecn := boolean(),
+    is_congest := boolean(),
+    has_fragment := boolean(),
+    fragment_offset := df | mf,
+    protocol := tcp | udp | icmp | gre | esp | ah | ospf | stcp,
+    src_ip := string(),
+    dst_ip := string(),
+    id := non_neg_integer()
+}.
 
 %%September 1981
 %Internet Protocol
@@ -129,17 +201,9 @@
 %+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 -spec init_config([Args]) -> Config when
-    Args :: [is_support_ecn|is_congest | has_fragment | {service, atom()}| {fragment_offset, atom()}| 
-             {protocol, atom()}|{src_ip, string()} | {dst_ip, string()}| {id, non_neg_integer()}],
-    Config :: #{service := best_effort | expedited_forwarding | assured_forwarding,
-              is_support_ecn := boolean(),
-              is_congest := boolean(),
-              fragment_offset := df | mf,
-              has_fragment := boolean(),
-              protocol := tcp | udp | icmp | gre | esp | ah| ospf| stcp,
-              src_ip := string(),
-              dst_ip := string(),
-              id := non_neg_integer() }.
+    Args :: [config_arg()],
+    Config :: config().
+
 init_config(Args) ->
   Config = init_config_1(),
   Opts =
