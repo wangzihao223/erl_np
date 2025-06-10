@@ -33,6 +33,12 @@ INTERNET PROTOCOL
 
 -export([send/11, send/3]).
 -export([recv/1 ]).
+-export([new_option/4 ]).
+
+-ifdef(TEST).
+-export([get_option_type/2 ]).
+-export([make_options/3 ]).
+-endif.
 
 -record(ip_head,
         {version = 4,
@@ -40,16 +46,16 @@ INTERNET PROTOCOL
          dscp = ?DEFAULT,
          ecn = 2,
          total_length = 0,
-         identification = nil,
-         flags = nil,
-         fragment_offset = nil,
-         time_to_live = nil,
-         protocol = nil,
-         header_checksum = nil,
-         source_addr = nil,
-         destination_addr = nil,
-         option = nil,
-         padding = nil}).
+         identification = 0,
+         flags = 2,
+         fragment_offset = 0,
+         time_to_live = ?TTL,
+         protocol = tcp,
+         header_checksum = 0,
+         source_addr = 0,
+         destination_addr = 0,
+         option = [],
+         padding = <<>>}).
 
 -type ip_head() :: #ip_head{
     version          :: 4,
@@ -112,6 +118,13 @@ INTERNET PROTOCOL
     id,         %% IP 标识字段（16 位整数）
     protocol    %% 协议号（如 6=TCP, 17=UDP）rfc790
 }).
+-doc """
+frag_key() 用于 IP 分片重组标识
+    - src_ip   :: non_neg_integer() source ip address
+    - dst_ip   :: non_neg_integer() destination ip address
+    - id       :: integer() identification number 16 bits
+    - protocol :: integer() protocol number , please read rfc790
+""".
 
 %%  类型别名：frag_key() 用于 IP 分片重组标识。
 -type frag_key() :: #frag_key{
@@ -210,7 +223,9 @@ recv(Device) ->
     {select, Obj, Ref, ready_input}->
       {Obj, Ref},
       Pack = tuntap:tuntap_read_nif(Device),
+      io:format("Pack ~p~n", [Pack]),
       unpack_ip_head(Pack)
+      %Pack
   end.
 
 -doc """
@@ -301,7 +316,7 @@ init_config_1() ->
       protocol => tcp,
       src_ip => "192.168.0.1",
       dst_ip => "8.8.8.8",
-      option => nil,
+      option => [],
       ttl => ?TTL,
       id => 0},
   Config.
@@ -383,7 +398,7 @@ new_ip_package(HeaderRaw, Payload) ->
        MaxPayloadSize = (?MTU - L) band bnot 7,
        <<Payload1:MaxPayloadSize/bytes, Reamin/binary>> = Payload,
        {First, HeaderRaw2} = ip_package_creater(HeaderRaw1, Payload1, #{}),
-       fragment(HeaderRaw2, Reamin, MaxPayloadSize / 8, [First])
+       fragment(HeaderRaw2, Reamin, MaxPayloadSize div 8, [First])
   end.
 
 
@@ -419,9 +434,13 @@ Returns a 3-tuple `{IsFrag, IPHead, Data}`:
 % or
 {true, IPHead, {FragKey, Frag}} = unpack_ip_head(AnotherBin).
 """.
--spec unpack_ip_head( binary( ) ) -> { boolean( ) , #ip_head{ } , binary( ) | { frag_key() , frag() } } .
+-spec unpack_ip_head( binary( ) ) -> { boolean( ) , #ip_head{ } , binary( ) | { frag_key() , frag() } } | nil.
+unpack_ip_head(<<>>) -> nil;
+
+unpack_ip_head(<<V:4,_:4,_/binary>>) when V =/= 4 -> nil;
 
 unpack_ip_head(Pack) ->
+
   <<_:4, IHL:4, _/binary>> = Pack,
   L = IHL * 4,
 
@@ -459,8 +478,7 @@ unpack_ip_head(Pack) ->
   PayloadSize = TL - IHL * 4,
 
   <<Payload1:PayloadSize/bytes, _/binary>> = Payload,
-
-  if Flags == 1 ->
+  if Flags == 2 ->
        %完整的包
        {true, HeaderRaw, Payload1};
      true ->
@@ -627,6 +645,39 @@ new_frag(Offset, Flags, Payload) ->
         mf = Flags,
         payload = Payload}.
 
+%-record(head_option,
+%        {copied_flag = 0,
+%         option_class = 0,
+%         option_num = 0,
+%         option_type = 0,
+%         option_length = nil,
+%         option_pyaload = <<>>}).
+-spec new_option(CopyFlag, ClassNum, OptionNum, Payload) -> Option when
+    CopyFlag :: non_neg_integer(),
+    ClassNum :: non_neg_integer(),
+    OptionNum :: non_neg_integer(),
+    Payload :: binary(),
+    Option :: head_option().
+
+         % end_option_list ->
+         %   <<0:8>>;
+         % no_operation ->
+         %   <<1:8>>;
+new_option(CopyFlag, ClassNum, OptionNum, Payload) ->
+  Opt = #head_option{copied_flag = CopyFlag,
+                     option_class = ClassNum,
+                     option_num = OptionNum,
+                     option_pyaload = Payload
+                    },
+  L = case stand_options(ClassNum, OptionNum) of
+    end_option_list -> 
+      1;
+    no_operation ->
+      1;
+    _ -> size(Payload) + 2
+  end,
+  Opt#head_option{option_length = L}.
+
 make_ecn(SupportFlag, IsCongest) ->
   case {SupportFlag, IsCongest} of
     {false, _} ->
@@ -683,7 +734,7 @@ get_option_type(<<>>, OptionList) ->
 get_option_type(Data, OptionList) ->
   <<Type:8, R/binary>> = Data,
 
-  <<CopiedFlag:1, OptionClass:2, OptionNum:5>> = Type,
+  <<CopiedFlag:1, OptionClass:2, OptionNum:5>> = <<Type:8>>,
 
   OptionType = stand_options(OptionClass, OptionNum),
   Opt =
@@ -695,16 +746,21 @@ get_option_type(Data, OptionList) ->
   {R1, NewOpt} =
     case OptionType of
       end_option_list ->
-        {<<>>, Opt};
+        {<<>>, nil};
       no_operation ->
-        {R, Opt};
+        {R, nil};
       _ ->
-        {OptionPyload, Reamin} = read_option_data(Data),
+        {OptionPyload, Reamin} = read_option_data(R),
         Opt1 =
           Opt#head_option{option_pyaload = OptionPyload, option_length = size(OptionPyload) + 2},
         {Reamin, Opt1}
     end,
-  get_option_type(R1, [NewOpt | OptionList]).
+  case NewOpt of
+    nil ->
+      get_option_type(R1, OptionList);
+    _ ->
+      get_option_type(R1, [NewOpt | OptionList])
+  end.
 
 read_option_data(Data) ->
   <<L:8, R/binary>> = Data,
@@ -738,19 +794,20 @@ fragment(HeaderRaw, Payload, Offset, Acc) ->
        % last fragment
        HeaderRaw1 = HeaderRaw#ip_head{flags = 0, fragment_offset = Offset},
        {HeaderBin, _HeaderRaw2} =
-         ip_package_creater(HeaderRaw1, Payload, #{check_copyied => true}),
+         ip_package_creater(HeaderRaw1, Payload, #{check_copied => true}),
        lists:reverse([HeaderBin | Acc]);
      true ->
        HeaderRaw1 = HeaderRaw#ip_head{flags = 1, fragment_offset = Offset},
        % not last
        MaxPayloadSize = (?MTU - L) band bnot 7,
        <<Payload1:MaxPayloadSize/bytes, Reamin/binary>> = Payload,
-       {Header2, HeaderRaw2} = ip_package_creater(HeaderRaw1, Payload1, #{check_copied => ture}),
-       fragment(HeaderRaw2, Reamin, (Offset + MaxPayloadSize) / 8, [Header2 | Acc])
+       {Header2, HeaderRaw2} = ip_package_creater(HeaderRaw1, Payload1, #{check_copied => true}),
+       fragment(HeaderRaw2, Reamin, Offset + (MaxPayloadSize div 8), [Header2 | Acc])
+
   end.
 
 make_options([], Acc, _Args) ->
-  Acc;
+  <<Acc/binary, 0:8>>;
 make_options([Option | Next], Acc, Args) ->
   F = maps:get(check_copied, Args, false),
 
@@ -805,11 +862,11 @@ ip_package_creater(Header, Payload, Args) ->
     Header,
   Opt = make_options(Options, <<>>, Args),
   % Completion header , padding zero
-  Opt1 = add_zero_for_option(Opt),
+  Opt1 = padding_for_option(Opt),
   IHL = (20 + size(Opt1)) div 4,
   Size = size(Payload),
   TotalLength = 20 + size(Opt1) + Size,
-  RawHead =
+  HeadBin =
     <<Version:4,
       IHL:4,
       Dscp:6,
@@ -817,22 +874,25 @@ ip_package_creater(Header, Payload, Args) ->
       TotalLength:16,
       Identification:16,
       Flags:3,
-      FragmentOffset:16,
+      FragmentOffset:13,
       TimeToLive:8,
       Protocol:8,
-      TotalLength:16,
+      0:16,
       SourceAddr:32,
       DestinationAddr:32,
       Opt1/binary>>,
-  HeaderBin = ip_header_checksum(RawHead),
+  Checksum = ip_header_checksum(HeadBin),
+  P1 = binary:part(HeadBin, 0, 10),
+  <<P1:(size(P1))/binary, _:16, P2/binary>> = HeadBin,
+  HeaderBin1 = <<P1/binary, Checksum:16, P2/binary>>,
 
-  Header1 = Header#ip_head{total_length = TotalLength, ihl = IHL},
-  {<<HeaderBin/binary, Payload/binary>>, Header1}.
+  Header1 = Header#ip_head{total_length = TotalLength, ihl = IHL, header_checksum = Checksum},
+  {<<HeaderBin1/binary, Payload/binary>>, Header1}.
 
-add_zero_for_option(Opt) ->
-  ZeroCount = (4 - size(Opt)) rem 4 rem 4,
+padding_for_option(Opt) ->
+  ZeroCount = (4 - (size(Opt) rem 4)) rem 4,
 
-  <<Opt/binary, 0:(ZeroCount*8)>>.
+  <<Opt/binary, 1:(ZeroCount*8)>>.
 
 get_header_length(Header, Args) ->
   Options = Header#ip_head.option,

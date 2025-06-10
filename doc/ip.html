@@ -12,7 +12,7 @@
 
     <link rel="stylesheet" href="dist/html-erlang-DQDXQC7W.css" />
 
-    <script defer src="dist/sidebar_items-36A789E5.js"></script>
+    <script defer src="dist/sidebar_items-C2F0B4BB.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-DPJLHKSM.js"></script>
 
@@ -142,6 +142,8 @@ key-value tuples (e.g., <code class="inline">{service, best_effort}</code>).</p>
 
       </div>
 
+        <div class="summary-synopsis"><p>类型别名：frag_key() 用于 IP 分片重组标识</p></div>
+
     </div>
 
     <div class="summary-row">
@@ -228,6 +230,32 @@ key-value tuples (e.g., <code class="inline">{service, best_effort}</code>).</p>
 
     <div class="summary-row">
       <div class="summary-signature">
+        <a href="#recv/1" data-no-tooltip="" translate="no">recv(Device)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Receive tun data and parse ip protocol package</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#send/3" data-no-tooltip="" translate="no">send(Device, HeaderRaw, Payload)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#send/11" data-no-tooltip="" translate="no">send(Device, SrcIp, DstIp, Proto, TOS, TTL, Payload, Len, Id, DF, Opt)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
         <a href="#unpack_ip_head/1" data-no-tooltip="" translate="no">unpack_ip_head(Pack)</a>
 
       </div>
@@ -260,7 +288,7 @@ required for fragment reassembly.</p></div>
       <h1 class="signature" translate="no">config()</h1>
 
 
-        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L138" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L149" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -280,6 +308,7 @@ required for fragment reassembly.</p></div>
             protocol := tcp | udp | icmp | gre | esp | ah | ospf | stcp,
             src_ip := <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:string/0">string</a>(),
             dst_ip := <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:string/0">string</a>(),
+            ttl := <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>(),
             id := <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>()}.</pre>
 
       </div>
@@ -297,7 +326,7 @@ required for fragment reassembly.</p></div>
       <h1 class="signature" translate="no">config_arg()</h1>
 
 
-        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L129" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L139" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -315,6 +344,7 @@ required for fragment reassembly.</p></div>
           {protocol, tcp | udp | icmp | gre | esp | ah | ospf | stcp} |
           {src_ip, <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:string/0">string</a>()} |
           {dst_ip, <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:string/0">string</a>()} |
+          {ttl, <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>()} |
           {id, <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>()}.</pre>
 
       </div>
@@ -335,7 +365,7 @@ key-value tuples (e.g., <code class="inline">{service, best_effort}</code>).</p>
       <h1 class="signature" translate="no">frag()</h1>
 
 
-        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L97" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L100" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -363,7 +393,7 @@ key-value tuples (e.g., <code class="inline">{service, best_effort}</code>).</p>
       <h1 class="signature" translate="no">frag_key()</h1>
 
 
-        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L114" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L124" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -382,7 +412,10 @@ key-value tuples (e.g., <code class="inline">{service, best_effort}</code>).</p>
 
       </div>
 
-
+<p>类型别名：frag_key() 用于 IP 分片重组标识</p><pre><code class="makeup erlang" translate="no"><span class="p">-</span><span class="w"> </span><span class="na">src_ip</span><span class="w">   </span><span class="p">:</span><span class="p">:</span><span class="w"> </span><span class="nf">non_neg_integer</span><span class="p" data-group-id="8680631690-1">(</span><span class="p" data-group-id="8680631690-1">)</span><span class="w"> </span><span class="ss">source</span><span class="w"> </span><span class="ss">ip</span><span class="w"> </span><span class="ss">address</span><span class="w">
+</span><span class="p">-</span><span class="w"> </span><span class="na">dst_ip</span><span class="w">   </span><span class="p">:</span><span class="p">:</span><span class="w"> </span><span class="nf">non_neg_integer</span><span class="p" data-group-id="8680631690-2">(</span><span class="p" data-group-id="8680631690-2">)</span><span class="w"> </span><span class="n">Destination</span><span class="w"> </span><span class="ss">ip</span><span class="w"> </span><span class="ss">address</span><span class="w">
+</span><span class="p">-</span><span class="w"> </span><span class="na">id</span><span class="w">       </span><span class="p">:</span><span class="p">:</span><span class="w"> </span><span class="nf">integer</span><span class="p" data-group-id="8680631690-3">(</span><span class="p" data-group-id="8680631690-3">)</span><span class="w"> </span><span class="ss">identification</span><span class="w"> </span><span class="ss">number</span><span class="w"> </span><span class="mi">16</span><span class="w"> </span><span class="ss">bits</span><span class="w">
+</span><span class="p">-</span><span class="w"> </span><span class="na">protocol</span><span class="w"> </span><span class="p">:</span><span class="p">:</span><span class="w"> </span><span class="nf">integer</span><span class="p" data-group-id="8680631690-4">(</span><span class="p" data-group-id="8680631690-4">)</span><span class="w"> </span><span class="ss">protocol</span><span class="w"> </span><span class="ss">number</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="ss">please</span><span class="w"> </span><span class="ss">read</span><span class="w"> </span><span class="ss">rfc790</span></code></pre>
   </section>
 </section>
 <section class="detail" id="t:head_option/0">
@@ -395,7 +428,7 @@ key-value tuples (e.g., <code class="inline">{service, best_effort}</code>).</p>
       <h1 class="signature" translate="no">head_option()</h1>
 
 
-        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L77" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L80" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -429,7 +462,7 @@ key-value tuples (e.g., <code class="inline">{service, best_effort}</code>).</p>
       <h1 class="signature" translate="no">ip_head()</h1>
 
 
-        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L51" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L54" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -484,7 +517,7 @@ key-value tuples (e.g., <code class="inline">{service, best_effort}</code>).</p>
       <h1 class="signature" translate="no">check_complete(Buffer)</h1>
 
 
-        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L494" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L567" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -499,15 +532,15 @@ key-value tuples (e.g., <code class="inline">{service, best_effort}</code>).</p>
 
       </div>
 
-<p>Checks whether a fragment buffer contains a complete IP datagram.</p><p>This function verifies whether all IP fragments in <code class="inline">Buffer</code> are:</p><ol><li><strong>Contiguous</strong> — i.e., there are no gaps in the offsets.</li><li><strong>Complete</strong> — i.e., the final fragment has the <code class="inline">mf</code> (More Fragments) flag set to 0.</li></ol><p>It assumes the buffer is sorted by <code class="inline">frag#frag.offset</code> in ascending order.</p><h2 id="check_complete/1-parameters" class="section-heading"><a href="#check_complete/1-parameters" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Parameters</span></h2><ul><li><code class="inline">Buffer</code>: A list of <code class="inline">frag()</code> structures representing ordered IP fragments.</li></ul><h2 id="check_complete/1-returns" class="section-heading"><a href="#check_complete/1-returns" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Returns</span></h2><ul><li><code class="inline">true</code> if the fragments are contiguous and complete.</li><li><code class="inline">false</code> otherwise.</li></ul><h2 id="check_complete/1-example" class="section-heading"><a href="#check_complete/1-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup erlang" translate="no"><span class="gp unselectable">1&gt; </span><span class="nf">check_complete</span><span class="p" data-group-id="0396378821-1">(</span><span class="p" data-group-id="0396378821-2">[</span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="0396378821-3">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="ss">payload</span><span class="o">=&lt;</span><span class="o">&lt;</span><span class="s">&quot;abc&quot;</span><span class="p">&gt;&gt;</span><span class="p">,</span><span class="w"> </span><span class="ss">mf</span><span class="o">=</span><span class="mi">1</span><span class="p" data-group-id="0396378821-3">}</span><span class="p">,</span><span class="w">
-                   </span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="0396378821-4">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="ss">payload</span><span class="o">=&lt;</span><span class="o">&lt;</span><span class="s">&quot;def&quot;</span><span class="p">&gt;&gt;</span><span class="p">,</span><span class="w"> </span><span class="ss">mf</span><span class="o">=</span><span class="mi">0</span><span class="p" data-group-id="0396378821-4">}</span><span class="p" data-group-id="0396378821-2">]</span><span class="p" data-group-id="0396378821-1">)</span><span class="p">.</span><span class="w">
+<p>Checks whether a fragment buffer contains a complete IP datagram.</p><p>This function verifies whether all IP fragments in <code class="inline">Buffer</code> are:</p><ol><li><strong>Contiguous</strong> — i.e., there are no gaps in the offsets.</li><li><strong>Complete</strong> — i.e., the final fragment has the <code class="inline">mf</code> (More Fragments) flag set to 0.</li></ol><p>It assumes the buffer is sorted by <code class="inline">frag#frag.offset</code> in ascending order.</p><h2 id="check_complete/1-parameters" class="section-heading"><a href="#check_complete/1-parameters" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Parameters</span></h2><ul><li><code class="inline">Buffer</code>: A list of <code class="inline">frag()</code> structures representing ordered IP fragments.</li></ul><h2 id="check_complete/1-returns" class="section-heading"><a href="#check_complete/1-returns" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Returns</span></h2><ul><li><code class="inline">true</code> if the fragments are contiguous and complete.</li><li><code class="inline">false</code> otherwise.</li></ul><h2 id="check_complete/1-example" class="section-heading"><a href="#check_complete/1-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup erlang" translate="no"><span class="gp unselectable">1&gt; </span><span class="nf">check_complete</span><span class="p" data-group-id="3601406129-1">(</span><span class="p" data-group-id="3601406129-2">[</span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="3601406129-3">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="ss">payload</span><span class="o">=&lt;</span><span class="o">&lt;</span><span class="s">&quot;abc&quot;</span><span class="p">&gt;&gt;</span><span class="p">,</span><span class="w"> </span><span class="ss">mf</span><span class="o">=</span><span class="mi">1</span><span class="p" data-group-id="3601406129-3">}</span><span class="p">,</span><span class="w">
+                   </span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="3601406129-4">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="ss">payload</span><span class="o">=&lt;</span><span class="o">&lt;</span><span class="s">&quot;def&quot;</span><span class="p">&gt;&gt;</span><span class="p">,</span><span class="w"> </span><span class="ss">mf</span><span class="o">=</span><span class="mi">0</span><span class="p" data-group-id="3601406129-4">}</span><span class="p" data-group-id="3601406129-2">]</span><span class="p" data-group-id="3601406129-1">)</span><span class="p">.</span><span class="w">
 </span><span class="ss">true</span><span class="p">.</span><span class="w">
 
-</span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">check_complete</span><span class="p" data-group-id="0396378821-5">(</span><span class="p" data-group-id="0396378821-6">[</span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="0396378821-7">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="ss">payload</span><span class="o">=&lt;</span><span class="o">&lt;</span><span class="s">&quot;abc&quot;</span><span class="p">&gt;&gt;</span><span class="p">,</span><span class="w"> </span><span class="ss">mf</span><span class="o">=</span><span class="mi">1</span><span class="p" data-group-id="0396378821-7">}</span><span class="p">,</span><span class="w">
-                   </span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="0396378821-8">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="ss">payload</span><span class="o">=&lt;</span><span class="o">&lt;</span><span class="s">&quot;def&quot;</span><span class="p">&gt;&gt;</span><span class="p">,</span><span class="w"> </span><span class="ss">mf</span><span class="o">=</span><span class="mi">0</span><span class="p" data-group-id="0396378821-8">}</span><span class="p" data-group-id="0396378821-6">]</span><span class="p" data-group-id="0396378821-5">)</span><span class="p">.</span><span class="w">
+</span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">check_complete</span><span class="p" data-group-id="3601406129-5">(</span><span class="p" data-group-id="3601406129-6">[</span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="3601406129-7">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="ss">payload</span><span class="o">=&lt;</span><span class="o">&lt;</span><span class="s">&quot;abc&quot;</span><span class="p">&gt;&gt;</span><span class="p">,</span><span class="w"> </span><span class="ss">mf</span><span class="o">=</span><span class="mi">1</span><span class="p" data-group-id="3601406129-7">}</span><span class="p">,</span><span class="w">
+                   </span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="3601406129-8">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="ss">payload</span><span class="o">=&lt;</span><span class="o">&lt;</span><span class="s">&quot;def&quot;</span><span class="p">&gt;&gt;</span><span class="p">,</span><span class="w"> </span><span class="ss">mf</span><span class="o">=</span><span class="mi">0</span><span class="p" data-group-id="3601406129-8">}</span><span class="p" data-group-id="3601406129-6">]</span><span class="p" data-group-id="3601406129-5">)</span><span class="p">.</span><span class="w">
 </span><span class="ss">false</span><span class="p">.</span><span class="w">  </span><span class="c1">% gap at offset=3</span><span class="w">
 
-</span><span class="mi">3</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">check_complete</span><span class="p" data-group-id="0396378821-9">(</span><span class="p" data-group-id="0396378821-10">[</span><span class="p" data-group-id="0396378821-10">]</span><span class="p" data-group-id="0396378821-9">)</span><span class="p">.</span><span class="w">
+</span><span class="mi">3</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">check_complete</span><span class="p" data-group-id="3601406129-9">(</span><span class="p" data-group-id="3601406129-10">[</span><span class="p" data-group-id="3601406129-10">]</span><span class="p" data-group-id="3601406129-9">)</span><span class="p">.</span><span class="w">
 </span><span class="ss">false</span><span class="p">.</span></code></pre>
   </section>
 </section>
@@ -521,7 +554,7 @@ key-value tuples (e.g., <code class="inline">{service, best_effort}</code>).</p>
       <h1 class="signature" translate="no">init_config(Args)</h1>
 
 
-        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L208" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L280" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -565,7 +598,7 @@ IP identifier used for fragmentation and reassembly</p></li></ul>
       <h1 class="signature" translate="no">insert_fragment_buffer(Buffer, Frag)</h1>
 
 
-        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L434" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L507" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -583,8 +616,8 @@ IP identifier used for fragmentation and reassembly</p></li></ul>
 
 <p>Inserts a fragment into a sorted fragment buffer, maintaining order by offset.</p><p>this function uses the <em>difference list</em> technique to insert a new fragment
 (<code class="inline">frag()</code>) into a buffer (a list of <code class="inline">frag()</code>) ordered by their <code class="inline">offset</code> field.
-This avoids costly list reversal and preserves performance even for long lists.</p><h2 id="insert_fragment_buffer/2-parameters" class="section-heading"><a href="#insert_fragment_buffer/2-parameters" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Parameters</span></h2><ul><li><code class="inline">Buffer</code>: A list of <code class="inline">frag()</code> elements, sorted by <code class="inline">frag#frag.offset</code>.</li><li><code class="inline">Frag</code>: A new <code class="inline">frag()</code> to insert.</li></ul><h2 id="insert_fragment_buffer/2-returns" class="section-heading"><a href="#insert_fragment_buffer/2-returns" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Returns</span></h2><ul><li>A new list of <code class="inline">frag()</code> with <code class="inline">Frag</code> inserted at the correct position.</li></ul><h2 id="insert_fragment_buffer/2-example" class="section-heading"><a href="#insert_fragment_buffer/2-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup erlang" translate="no"><span class="gp unselectable">1&gt; </span><span class="nf">insert_fragment_buffer</span><span class="p" data-group-id="0553705705-1">(</span><span class="p" data-group-id="0553705705-2">[</span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="0553705705-3">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">0</span><span class="p" data-group-id="0553705705-3">}</span><span class="p" data-group-id="0553705705-2">]</span><span class="p">,</span><span class="w"> </span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="0553705705-4">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">1</span><span class="p" data-group-id="0553705705-4">}</span><span class="p" data-group-id="0553705705-1">)</span><span class="p">.</span><span class="w">
-</span><span class="p" data-group-id="0553705705-5">[</span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="0553705705-6">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">0</span><span class="p" data-group-id="0553705705-6">}</span><span class="p">,</span><span class="w"> </span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="0553705705-7">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">1</span><span class="p" data-group-id="0553705705-7">}</span><span class="p" data-group-id="0553705705-5">]</span></code></pre>
+This avoids costly list reversal and preserves performance even for long lists.</p><h2 id="insert_fragment_buffer/2-parameters" class="section-heading"><a href="#insert_fragment_buffer/2-parameters" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Parameters</span></h2><ul><li><code class="inline">Buffer</code>: A list of <code class="inline">frag()</code> elements, sorted by <code class="inline">frag#frag.offset</code>.</li><li><code class="inline">Frag</code>: A new <code class="inline">frag()</code> to insert.</li></ul><h2 id="insert_fragment_buffer/2-returns" class="section-heading"><a href="#insert_fragment_buffer/2-returns" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Returns</span></h2><ul><li>A new list of <code class="inline">frag()</code> with <code class="inline">Frag</code> inserted at the correct position.</li></ul><h2 id="insert_fragment_buffer/2-example" class="section-heading"><a href="#insert_fragment_buffer/2-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup erlang" translate="no"><span class="gp unselectable">1&gt; </span><span class="nf">insert_fragment_buffer</span><span class="p" data-group-id="0078830233-1">(</span><span class="p" data-group-id="0078830233-2">[</span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="0078830233-3">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">0</span><span class="p" data-group-id="0078830233-3">}</span><span class="p" data-group-id="0078830233-2">]</span><span class="p">,</span><span class="w"> </span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="0078830233-4">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">1</span><span class="p" data-group-id="0078830233-4">}</span><span class="p" data-group-id="0078830233-1">)</span><span class="p">.</span><span class="w">
+</span><span class="p" data-group-id="0078830233-5">[</span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="0078830233-6">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">0</span><span class="p" data-group-id="0078830233-6">}</span><span class="p">,</span><span class="w"> </span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="0078830233-7">{</span><span class="ss">offset</span><span class="o">=</span><span class="mi">1</span><span class="p" data-group-id="0078830233-7">}</span><span class="p" data-group-id="0078830233-5">]</span></code></pre>
   </section>
 </section>
 <section class="detail" id="make_ip_head_raw/1">
@@ -597,7 +630,7 @@ This avoids costly list reversal and preserves performance even for long lists.<
       <h1 class="signature" translate="no">make_ip_head_raw(Config)</h1>
 
 
-        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L256" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L329" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -628,7 +661,7 @@ to encode or manipulate IP packets.</p>
       <h1 class="signature" translate="no">new_ip_package(HeaderRaw, Payload)</h1>
 
 
-        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L307" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L380" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -644,8 +677,8 @@ to encode or manipulate IP packets.</p>
 
       </div>
 
-<p>make a ip package , Constructs a complete IP packet or a list of fragments if the payload exceeds the MTU.</p><p>Arguments:</p><ul><li><code class="inline">HeaderRaw</code>: IP header record (ip_head())</li><li><code class="inline">Payload</code>: binary data </li></ul><p>Returns:</p><ul><li>A list of binary-encoded IP packets</li></ul><p><em>Example:</em></p><pre><code class="makeup erlang" translate="no"><span class="gp unselectable">1&gt; </span><span class="nf">new_ip_package</span><span class="p" data-group-id="4043161287-1">(</span><span class="n">Header</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="4043161287-2">&lt;&lt;</span><span class="s">&quot;Hello&quot;</span><span class="p" data-group-id="4043161287-2">&gt;&gt;</span><span class="p" data-group-id="4043161287-1">)</span><span class="p">.</span><span class="w">
-</span><span class="p" data-group-id="4043161287-3">[</span><span class="p" data-group-id="4043161287-4">&lt;&lt;</span><span class="p">.</span><span class="p">.</span><span class="p">.</span><span class="p" data-group-id="4043161287-4">&gt;&gt;</span><span class="p" data-group-id="4043161287-3">]</span></code></pre>
+<p>make a ip package , Constructs a complete IP packet or a list of fragments if the payload exceeds the MTU.</p><p>Arguments:</p><ul><li><code class="inline">HeaderRaw</code>: IP header record (ip_head())</li><li><code class="inline">Payload</code>: binary data </li></ul><p>Returns:</p><ul><li>A list of binary-encoded IP packets</li></ul><p><em>Example:</em></p><pre><code class="makeup erlang" translate="no"><span class="gp unselectable">1&gt; </span><span class="nf">new_ip_package</span><span class="p" data-group-id="7698123182-1">(</span><span class="n">Header</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="7698123182-2">&lt;&lt;</span><span class="s">&quot;Hello&quot;</span><span class="p" data-group-id="7698123182-2">&gt;&gt;</span><span class="p" data-group-id="7698123182-1">)</span><span class="p">.</span><span class="w">
+</span><span class="p" data-group-id="7698123182-3">[</span><span class="p" data-group-id="7698123182-4">&lt;&lt;</span><span class="p">.</span><span class="p">.</span><span class="p">.</span><span class="p" data-group-id="7698123182-4">&gt;&gt;</span><span class="p" data-group-id="7698123182-3">]</span></code></pre>
   </section>
 </section>
 <section class="detail" id="reassemble_frags/1">
@@ -658,7 +691,7 @@ to encode or manipulate IP packets.</p>
       <h1 class="signature" translate="no">reassemble_frags(Buffer)</h1>
 
 
-        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L540" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L613" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -674,8 +707,108 @@ to encode or manipulate IP packets.</p>
       </div>
 
 <p>Reassembles a list of IP fragments into a single binary payload.</p><p>This function concatenates the payload of each fragment in order,
-building up the complete IP packet payload.</p><h2 id="reassemble_frags/1-parameters" class="section-heading"><a href="#reassemble_frags/1-parameters" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Parameters</span></h2><ul><li><code class="inline">Buffer</code>: A list of <code class="inline">frag()</code> records sorted by offset.</li><li><code class="inline">Acc</code>: An accumulator binary to append fragments to, typically <code class="inline">&lt;&lt;&gt;&gt;</code>.</li></ul><h2 id="reassemble_frags/1-returns" class="section-heading"><a href="#reassemble_frags/1-returns" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Returns</span></h2><ul><li>A binary representing the reassembled payload.</li></ul><h2 id="reassemble_frags/1-example" class="section-heading"><a href="#reassemble_frags/1-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup erlang" translate="no"><span class="gp unselectable">1&gt; </span><span class="nf">reassemble_frags</span><span class="p" data-group-id="5892294981-1">(</span><span class="p" data-group-id="5892294981-2">[</span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="5892294981-3">{</span><span class="ss">payload</span><span class="o">=&lt;</span><span class="o">&lt;</span><span class="s">&quot;abc&quot;</span><span class="p">&gt;&gt;</span><span class="p" data-group-id="5892294981-3">}</span><span class="p">,</span><span class="w"> </span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="5892294981-4">{</span><span class="ss">payload</span><span class="o">=&lt;</span><span class="o">&lt;</span><span class="s">&quot;def&quot;</span><span class="p">&gt;&gt;</span><span class="p" data-group-id="5892294981-4">}</span><span class="p" data-group-id="5892294981-2">]</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5892294981-5">&lt;&lt;</span><span class="p" data-group-id="5892294981-5">&gt;&gt;</span><span class="p" data-group-id="5892294981-1">)</span><span class="p">.</span><span class="w">
-</span><span class="p" data-group-id="5892294981-6">&lt;&lt;</span><span class="s">&quot;abcdef&quot;</span><span class="p" data-group-id="5892294981-6">&gt;&gt;</span></code></pre>
+building up the complete IP packet payload.</p><h2 id="reassemble_frags/1-parameters" class="section-heading"><a href="#reassemble_frags/1-parameters" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Parameters</span></h2><ul><li><code class="inline">Buffer</code>: A list of <code class="inline">frag()</code> records sorted by offset.</li><li><code class="inline">Acc</code>: An accumulator binary to append fragments to, typically <code class="inline">&lt;&lt;&gt;&gt;</code>.</li></ul><h2 id="reassemble_frags/1-returns" class="section-heading"><a href="#reassemble_frags/1-returns" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Returns</span></h2><ul><li>A binary representing the reassembled payload.</li></ul><h2 id="reassemble_frags/1-example" class="section-heading"><a href="#reassemble_frags/1-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup erlang" translate="no"><span class="gp unselectable">1&gt; </span><span class="nf">reassemble_frags</span><span class="p" data-group-id="4147351264-1">(</span><span class="p" data-group-id="4147351264-2">[</span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="4147351264-3">{</span><span class="ss">payload</span><span class="o">=&lt;</span><span class="o">&lt;</span><span class="s">&quot;abc&quot;</span><span class="p">&gt;&gt;</span><span class="p" data-group-id="4147351264-3">}</span><span class="p">,</span><span class="w"> </span><span class="o">#</span><span class="ss">frag</span><span class="p" data-group-id="4147351264-4">{</span><span class="ss">payload</span><span class="o">=&lt;</span><span class="o">&lt;</span><span class="s">&quot;def&quot;</span><span class="p">&gt;&gt;</span><span class="p" data-group-id="4147351264-4">}</span><span class="p" data-group-id="4147351264-2">]</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="4147351264-5">&lt;&lt;</span><span class="p" data-group-id="4147351264-5">&gt;&gt;</span><span class="p" data-group-id="4147351264-1">)</span><span class="p">.</span><span class="w">
+</span><span class="p" data-group-id="4147351264-6">&lt;&lt;</span><span class="s">&quot;abcdef&quot;</span><span class="p" data-group-id="4147351264-6">&gt;&gt;</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="recv/1">
+
+  <div class="detail-header">
+    <a href="#recv/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">recv(Device)</h1>
+
+
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L213" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-spec</span> recv(Device :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:reference/0">reference</a>()) -> {<a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:boolean/0">boolean</a>(), <a href="#t:ip_head/0">ip_head</a>(), <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:binary/0">binary</a>() | {<a href="#t:frag_key/0">frag_key</a>(), <a href="#t:frag/0">frag</a>()}}.</pre>
+
+      </div>
+
+<p>Receive tun data and parse ip protocol package</p>
+  </section>
+</section>
+<section class="detail" id="send/3">
+
+  <div class="detail-header">
+    <a href="#send/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">send(Device, HeaderRaw, Payload)</h1>
+
+
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L194" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-spec</span> send(Device, HeaderRaw, Payload) -> Length
+              when
+                  Device :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:reference/0">reference</a>(),
+                  HeaderRaw :: <a href="#t:ip_head/0">ip_head</a>(),
+                  Payload :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:binary/0">binary</a>(),
+                  Length :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>().</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="send/11">
+
+  <div class="detail-header">
+    <a href="#send/11" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">send(Device, SrcIp, DstIp, Proto, TOS, TTL, Payload, Len, Id, DF, Opt)</h1>
+
+
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L171" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-spec</span> send(Device :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:reference/0">reference</a>(),
+           SrcIp :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:string/0">string</a>(),
+           DstIp :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:string/0">string</a>(),
+           Proto :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:atom/0">atom</a>(),
+           TOS :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:atom/0">atom</a>(),
+           TTL :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:integer/0">integer</a>(),
+           Payload :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:binary/0">binary</a>(),
+           Len :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:integer/0">integer</a>(),
+           Id :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:integer/0">integer</a>(),
+           DF :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:boolean/0">boolean</a>(),
+           Opt :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:list/0">list</a>()) ->
+              ok | {error, <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:term/0">term</a>()}.</pre>
+
+      </div>
+
+
   </section>
 </section>
 <section class="detail" id="unpack_ip_head/1">
@@ -688,7 +821,7 @@ building up the complete IP packet payload.</p><h2 id="reassemble_frags/1-parame
       <h1 class="signature" translate="no">unpack_ip_head(Pack)</h1>
 
 
-        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L358" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/wangzihao223/erl_np.git/blob/v0.1.0/src/ip.erl#L431" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -721,9 +854,9 @@ building up the complete IP packet payload.</p><h2 id="reassemble_frags/1-parame
       </div>
 
 <p>Parses a raw IP packet and returns either the complete payload or information
-required for fragment reassembly.</p><p>解析原始 IP 数据包，并返回完整载荷，或用于 IP 分片重组所需的信息。</p><h3 id="unpack_ip_head/1-return" class="section-heading"><a href="#unpack_ip_head/1-return" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">return</span></h3><p>Returns a 3-tuple <code class="inline">{IsFrag, IPHead, Data}</code>:</p><ul><li><p><code class="inline">IsFrag</code> :: <code class="inline">boolean()</code>  </p><p>是否为分片包：  </p><ul><li><code class="inline">false</code> 表示此包为完整的 IP 数据包  </li><li><code class="inline">true</code> 表示此包为 IP 分片（需要重组）</li></ul></li><li><p><code class="inline">IPHead</code> :: <code class="inline">#ip_head{}</code><br/>已解析的 IP 头部结构体</p></li><li><p><code class="inline">Data</code> ::  </p><ul><li><code class="inline">Payload :: binary()</code> — 当 <code class="inline">IsFrag = false</code>，为完整 IP 包的有效载荷  </li><li><code class="inline">{FragKey, Frag}</code> — 当 <code class="inline">IsFrag = true</code>，为以下内容：  <ul><li><code class="inline">FragKey :: frag_key()</code> — 用于唯一标识一个 IP 包（例如包含 源 IP、目标 IP、ID、协议）  </li><li><code class="inline">Frag :: frag()</code> — 当前分片信息（偏移、是否最后一片、数据等）</li></ul></li></ul></li></ul><h3 id="unpack_ip_head/1-example" class="section-heading"><a href="#unpack_ip_head/1-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">example</span></h3><pre><code class="makeup erlang" translate="no"><span class="p" data-group-id="2883382246-1">{</span><span class="ss">false</span><span class="p">,</span><span class="w"> </span><span class="n">IPHead</span><span class="p">,</span><span class="w"> </span><span class="n">Payload</span><span class="p" data-group-id="2883382246-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">unpack_ip_head</span><span class="p" data-group-id="2883382246-2">(</span><span class="n">RawBin</span><span class="p" data-group-id="2883382246-2">)</span><span class="p">,</span><span class="w">
+required for fragment reassembly.</p><p>解析原始 IP 数据包，并返回完整载荷，或用于 IP 分片重组所需的信息。</p><h3 id="unpack_ip_head/1-return" class="section-heading"><a href="#unpack_ip_head/1-return" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">return</span></h3><p>Returns a 3-tuple <code class="inline">{IsFrag, IPHead, Data}</code>:</p><ul><li><p><code class="inline">IsFrag</code> :: <code class="inline">boolean()</code>  </p><p>是否为分片包：  </p><ul><li><code class="inline">false</code> 表示此包为完整的 IP 数据包  </li><li><code class="inline">true</code> 表示此包为 IP 分片（需要重组）</li></ul></li><li><p><code class="inline">IPHead</code> :: <code class="inline">#ip_head{}</code><br/>已解析的 IP 头部结构体</p></li><li><p><code class="inline">Data</code> ::  </p><ul><li><code class="inline">Payload :: binary()</code> — 当 <code class="inline">IsFrag = false</code>，为完整 IP 包的有效载荷  </li><li><code class="inline">{FragKey, Frag}</code> — 当 <code class="inline">IsFrag = true</code>，为以下内容：  <ul><li><code class="inline">FragKey :: frag_key()</code> — 用于唯一标识一个 IP 包（例如包含 源 IP、目标 IP、ID、协议）  </li><li><code class="inline">Frag :: frag()</code> — 当前分片信息（偏移、是否最后一片、数据等）</li></ul></li></ul></li></ul><h3 id="unpack_ip_head/1-example" class="section-heading"><a href="#unpack_ip_head/1-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">example</span></h3><pre><code class="makeup erlang" translate="no"><span class="p" data-group-id="1624662775-1">{</span><span class="ss">false</span><span class="p">,</span><span class="w"> </span><span class="n">IPHead</span><span class="p">,</span><span class="w"> </span><span class="n">Payload</span><span class="p" data-group-id="1624662775-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">unpack_ip_head</span><span class="p" data-group-id="1624662775-2">(</span><span class="n">RawBin</span><span class="p" data-group-id="1624662775-2">)</span><span class="p">,</span><span class="w">
 </span><span class="c1">% or</span><span class="w">
-</span><span class="p" data-group-id="2883382246-3">{</span><span class="ss">true</span><span class="p">,</span><span class="w"> </span><span class="n">IPHead</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="2883382246-4">{</span><span class="n">FragKey</span><span class="p">,</span><span class="w"> </span><span class="n">Frag</span><span class="p" data-group-id="2883382246-4">}</span><span class="p" data-group-id="2883382246-3">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">unpack_ip_head</span><span class="p" data-group-id="2883382246-5">(</span><span class="n">AnotherBin</span><span class="p" data-group-id="2883382246-5">)</span><span class="p">.</span></code></pre>
+</span><span class="p" data-group-id="1624662775-3">{</span><span class="ss">true</span><span class="p">,</span><span class="w"> </span><span class="n">IPHead</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="1624662775-4">{</span><span class="n">FragKey</span><span class="p">,</span><span class="w"> </span><span class="n">Frag</span><span class="p" data-group-id="1624662775-4">}</span><span class="p" data-group-id="1624662775-3">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">unpack_ip_head</span><span class="p" data-group-id="1624662775-5">(</span><span class="n">AnotherBin</span><span class="p" data-group-id="1624662775-5">)</span><span class="p">.</span></code></pre>
   </section>
 </section>
 
