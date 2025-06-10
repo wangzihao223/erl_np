@@ -223,7 +223,6 @@ recv(Device) ->
     {select, Obj, Ref, ready_input}->
       {Obj, Ref},
       Pack = tuntap:tuntap_read_nif(Device),
-      io:format("Pack ~p~n", [Pack]),
       unpack_ip_head(Pack)
       %Pack
   end.
