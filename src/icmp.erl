@@ -8,6 +8,22 @@
 
 -export([make_echo_msg/3, make_echo_reply_msg/3, unpack_echo_msg/1]).
 
+-record(echo_msg,
+        {type = 0 :: non_neg_integer(),
+         code = 0 :: non_neg_integer(),
+         checksum = 0 :: non_neg_integer(),
+         id = 0 :: non_neg_integer(),
+         seq = 0 :: non_neg_integer(),
+         data = <<>> :: binary()}).
+
+-type echo_msg() ::
+  #echo_msg{type :: non_neg_integer(),
+            code :: 0,
+            checksum :: non_neg_integer(),
+            id :: non_neg_integer(),
+            seq :: non_neg_integer(),
+            data :: binary()}.
+
 get_type(dest_unreachable) ->
   3;
 get_type(source_quench) ->
@@ -35,14 +51,15 @@ make_echo_msg(ID, Seq, Data) ->
   Type = get_type(echo),
   make_echo_msg(Type, ID, Seq, Data).
 
+-spec unpack_echo_msg(binary()) -> echo_msg().
 unpack_echo_msg(Data) ->
   <<Type:8, Code:8, CheckSum:16, ID:16, Seq:16, Data1/binary>> = Data,
-  #{type => Type,
-    code => Code,
-    checksum => CheckSum,
-    id => ID,
-    seq => Seq,
-    data => Data1}.
+  #echo_msg{type = Type,
+            code = Code,
+            checksum = CheckSum,
+            id = ID,
+            seq = Seq,
+            data = Data1}.
 
 make_echo_reply_msg(ID, Seq, Data) ->
   Type = get_type(echo_reply),
