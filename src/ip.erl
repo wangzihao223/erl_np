@@ -19,13 +19,7 @@ INTERNET PROTOCOL
 适用于需要用户态处理 IP 层报文的系统。
 """.
 
--define(DEFAULT, 0).
--define(EF, 46).
--define(AF11, 10).
--define(AF21, 10).
--define(AF31, 18).
--define(TTL, 64).
--define(MTU, 1500).
+-include("ip.hrl").
 
 -export([init_config/1, new_ip_package/2, make_ip_head_raw/1]).
 -export([insert_fragment_buffer/2, check_complete/1, reassemble_frags/1]).
@@ -34,28 +28,14 @@ INTERNET PROTOCOL
 -export([send/11, send/3]).
 -export([recv/1 ]).
 -export([new_option/4 ]).
+-export([ip_to_int/1]).
 
 -ifdef(TEST).
 -export([get_option_type/2 ]).
 -export([make_options/3 ]).
 -endif.
 
--record(ip_head,
-        {version = 4,
-         ihl = 0,
-         dscp = ?DEFAULT,
-         ecn = 2,
-         total_length = 0,
-         identification = 0,
-         flags = 2,
-         fragment_offset = 0,
-         time_to_live = ?TTL,
-         protocol = tcp,
-         header_checksum = 0,
-         source_addr = 0,
-         destination_addr = 0,
-         option = [],
-         padding = <<>>}).
+
 
 -type ip_head() :: #ip_head{
     version          :: 4,
@@ -75,13 +55,7 @@ INTERNET PROTOCOL
     padding          :: binary() | nil
 }.
 
--record(head_option,
-        {copied_flag = 0,
-         option_class = 0,
-         option_num = 0,
-         option_type = 0,
-         option_length = nil,
-         option_pyaload = <<>>}).
+
 
 -type head_option() :: #head_option{
                           copied_flag :: non_neg_integer(),
@@ -91,15 +65,6 @@ INTERNET PROTOCOL
                           option_length :: non_neg_integer(),
                           option_pyaload :: binary()
                          }.
-
-
-%% doc 表示一个 IP 分片的数据结构，用于在分片重组过程中存储分片信息。
-
--record(frag, {
-    offset,   %% 分片偏移量，单位为 8 字节（对应 IPv4 Fragment Offset 字段）
-    mf,       %% More Fragments 标志，类型为 boolean()，true 表示还有更多分片
-    payload   %% 分片所携带的有效数据（二进制）
-}).
 
 %%frag 类型别名，用于类型推导和文档生成。
 
@@ -112,12 +77,7 @@ INTERNET PROTOCOL
 %%  唯一标识一个 IP 分片包的键（四元组）。
 %% 用于在分片重组过程中进行定位和区分。
 
--record(frag_key, {
-    src_ip,     %% 源 IP 地址，类型为 int
-    dst_ip,     %% 目标 IP 地址，类型为 int TODO: 是否化为 inet:ip_address()
-    id,         %% IP 标识字段（16 位整数）
-    protocol    %% 协议号（如 6=TCP, 17=UDP）rfc790
-}).
+
 -doc """
 frag_key() 用于 IP 分片重组标识
     - src_ip   :: non_neg_integer() source ip address
@@ -199,174 +159,174 @@ send(Device, Src, Dst, Proto, TOS, TTL, Buf, _Len, Id, DF, Opt) ->
 
 send(Device, HeaderRaw, Payload) ->
   Packets = new_ip_package(HeaderRaw, Payload),
-  write_to_device(Device, Packets).
+    write_to_device(Device, Packets).
 
-%BufPTR = buffer pointer
-%prot = protocol
-%result = response
-%OK = datagram received ok
-%Error = error in arguments
-%len = length of buffer
-%src = source address
-%dst = destination address
-%TOS = type of service
-%opt = option da
-%
--doc"""
-Receive tun data and parse ip protocol package
-""".
--spec recv(Device::reference()) -> { boolean( ) , ip_head() , binary( ) | { frag_key() , frag() } }.
-recv(Device) ->
-  Fd = tuntap:tuntap_get_fd_nif(Device),
-  tuntap:tuntap_wait_read_nif(Device, Fd, self()),
-  receive
-    {select, Obj, Ref, ready_input}->
-      {Obj, Ref},
-      Pack = tuntap:tuntap_read_nif(Device),
-      unpack_ip_head(Pack)
-      %Pack
-  end.
+  %BufPTR = buffer pointer
+  %prot = protocol
+  %result = response
+  %OK = datagram received ok
+  %Error = error in arguments
+  %len = length of buffer
+  %src = source address
+  %dst = destination address
+  %TOS = type of service
+  %opt = option da
+  %
+  -doc"""
+  Receive tun data and parse ip protocol package
+  """.
+  -spec recv(Device::reference()) -> { boolean( ) , ip_head() , binary( ) | { frag_key() , frag() } }.
+  recv(Device) ->
+    Fd = tuntap:tuntap_get_fd_nif(Device),
+    tuntap:tuntap_wait_read_nif(Device, Fd, self()),
+    receive
+      {select, Obj, Ref, ready_input}->
+        {Obj, Ref},
+        Pack = tuntap:tuntap_read_nif(Device),
+        unpack_ip_head(Pack)
+        %Pack
+    end.
 
--doc """
- Configuration options used for building IP packets.
+  -doc """
+  Configuration options used for building IP packets.
 
- The config map contains settings related to fragmentation,  and protocol.
+  The config map contains settings related to fragmentation,  and protocol.
 
- - `service`:
-   dscp 的主要用途是区分网络中不同种类的流量，实现差异化服务，比如优先转发语音、视频，降低延迟等。
-   Specifies the Differentiated Services (DiffServ) level. 
-   One of:
-   - `best_effort`
-   - `expedited_forwarding`
-   - `assured_forwarding`
+  - `service`:
+    dscp 的主要用途是区分网络中不同种类的流量，实现差异化服务，比如优先转发语音、视频，降低延迟等。
+    Specifies the Differentiated Services (DiffServ) level. 
+    One of:
+    - `best_effort`
+    - `expedited_forwarding`
+    - `assured_forwarding`
 
- - `is_support_ecn`:
-   是否支持“显式拥塞通知”
-   Whether Explicit Congestion Notification (ECN) is supported.
-   
- - `is_congest`:
-    是否拥塞
-   Whether the sender is in a congestion state.
+  - `is_support_ecn`:
+    是否支持“显式拥塞通知”
+    Whether Explicit Congestion Notification (ECN) is supported.
+    
+  - `is_congest`:
+      是否拥塞
+    Whether the sender is in a congestion state.
 
- - `has_fragment`:
-   是否分片
-   Indicates if the IP packet is fragmented.
+  - `has_fragment`:
+    是否分片
+    Indicates if the IP packet is fragmented.
 
- - `fragment_offset`:
-   分片偏移量
-   Fragmentation flag, either:
-   - `df`: Don't Fragment
-   - `mf`: More Fragments
+  - `fragment_offset`:
+    分片偏移量
+    Fragmentation flag, either:
+    - `df`: Don't Fragment
+    - `mf`: More Fragments
 
- - `protocol`:
-   Upper layer protocol number:
-   协议
-   - `tcp`
-   - `udp`
-   - `icmp`
-   - `gre`
-   - `esp`
-   - `ah`
-   - `ospf`
-   - `stcp`
+  - `protocol`:
+    Upper layer protocol number:
+    协议
+    - `tcp`
+    - `udp`
+    - `icmp`
+    - `gre`
+    - `esp`
+    - `ah`
+    - `ospf`
+    - `stcp`
 
- - `src_ip`:
-   Source IP address as string (e.g., `"192.168.0.1"`).
+  - `src_ip`:
+    Source IP address as string (e.g., `"192.168.0.1"`).
 
- - `dst_ip`:
-   Destination IP address as string.
+  - `dst_ip`:
+    Destination IP address as string.
 
- - `id`:
-   IP identifier used for fragmentation and reassembly
-""".
+  - `id`:
+    IP identifier used for fragmentation and reassembly
+  """.
 
--spec init_config([Args]) -> Config when
-    Args :: [config_arg()],
-    Config :: config().
+  -spec init_config([Args]) -> Config when
+      Args :: [config_arg()],
+      Config :: config().
 
-init_config(Args) ->
-  Config = init_config_1(),
-  Opts =
-    lists:map(fun ({K, V}) ->
-                    {K, V};
-                  (K) when is_atom(K) ->
-                    {K, true}
-              end,
-              Args),
-  {_, Config1} =
-    lists:mapfoldl(fun({K, V}, Conf) ->
-                      case maps:is_key(K, Conf) of
-                        true -> {{K, V}, Conf#{K => V}};
-                        false -> error({bad_arg, "bad argument"})
-                      end
-                   end,
-                   Config,
-                   Opts),
-  Config1.
+  init_config(Args) ->
+    Config = init_config_1(),
+    Opts =
+      lists:map(fun ({K, V}) ->
+                      {K, V};
+                    (K) when is_atom(K) ->
+                      {K, true}
+                end,
+                Args),
+    {_, Config1} =
+      lists:mapfoldl(fun({K, V}, Conf) ->
+                        case maps:is_key(K, Conf) of
+                          true -> {{K, V}, Conf#{K => V}};
+                          false -> error({bad_arg, "bad argument"})
+                        end
+                    end,
+                    Config,
+                    Opts),
+    Config1.
 
-init_config_1() ->
-  Config =
-    #{service => best_effort,
-      is_support_ecn => true,
-      is_congest => false,
-      fragment_flag => df,
-      has_fragment => false,
-      fragment_offset => 0,
-      protocol => tcp,
-      src_ip => "192.168.0.1",
-      dst_ip => "8.8.8.8",
-      option => [],
-      ttl => ?TTL,
-      id => 0},
-  Config.
+  init_config_1() ->
+    Config =
+      #{service => best_effort,
+        is_support_ecn => true,
+        is_congest => false,
+        fragment_flag => df,
+        has_fragment => false,
+        fragment_offset => 0,
+        protocol => tcp,
+        src_ip => "192.168.0.1",
+        dst_ip => "8.8.8.8",
+        option => [],
+        ttl => ?TTL,
+        id => 0},
+    Config.
 
--doc """
- Constructs a raw IP header record (`ip_head()`) from a given config map.
+  -doc """
+  Constructs a raw IP header record (`ip_head()`) from a given config map.
 
 
-This function extracts necessary fields from the provided `Config` map,
-including service type, ECN flags, source/destination IPs, protocol, and more.
-It converts these into a structured `#ip_head{}` record that can be further used
-to encode or manipulate IP packets.
+  This function extracts necessary fields from the provided `Config` map,
+  including service type, ECN flags, source/destination IPs, protocol, and more.
+  It converts these into a structured `#ip_head{}` record that can be further used
+  to encode or manipulate IP packets.
 
-""".
--spec make_ip_head_raw(Config) -> HeaderRaw when
-    Config :: config(),
-    HeaderRaw :: ip_head().
-make_ip_head_raw(Config) ->
-  Service = map_get(service, Config),
-  SupportECN = map_get(is_support_ecn, Config),
-  IsCongest = map_get(is_congest, Config),
-  Protocol = map_get(protocol, Config),
-  SrcIP = ip_to_int(map_get(src_ip, Config)),
-  DstIP = ip_to_int(map_get(dst_ip, Config)),
-  T2L = map_get(ttl, Config),
-  Option =
-    case map_get(option, Config) of
-      nil ->
-        [];
-      Opt ->
-        Opt
-    end,
-  ID = map_get(id, Config),
+  """.
+  -spec make_ip_head_raw(Config) -> HeaderRaw when
+      Config :: config(),
+      HeaderRaw :: ip_head().
+  make_ip_head_raw(Config) ->
+    Service = map_get(service, Config),
+    SupportECN = map_get(is_support_ecn, Config),
+    IsCongest = map_get(is_congest, Config),
+    Protocol = map_get(protocol, Config),
+    SrcIP = ip_to_int(map_get(src_ip, Config)),
+    DstIP = ip_to_int(map_get(dst_ip, Config)),
+    T2L = map_get(ttl, Config),
+    Option =
+      case map_get(option, Config) of
+        nil ->
+          [];
+        Opt ->
+          Opt
+      end,
+    ID = map_get(id, Config),
 
-  Dscp = service_to_dscp(Service),
-  Ecn = make_ecn(SupportECN, IsCongest),
-  ProtocolNumber = protocol_number(Protocol),
+    Dscp = service_to_dscp(Service),
+    Ecn = make_ecn(SupportECN, IsCongest),
+    ProtocolNumber = protocol_number(Protocol),
 
-  HeaderRaw =
-    #ip_head{dscp = Dscp,
-             ecn = Ecn,
-             identification = ID,
-             time_to_live = T2L,
-             protocol = ProtocolNumber,
-             source_addr = SrcIP,
-             destination_addr = DstIP,
-             option = Option},
-  HeaderRaw.
+    HeaderRaw =
+      #ip_head{dscp = Dscp,
+              ecn = Ecn,
+              identification = ID,
+              time_to_live = T2L,
+              protocol = ProtocolNumber,
+              source_addr = SrcIP,
+              destination_addr = DstIP,
+              option = Option},
+    HeaderRaw.
 
--doc """
-make a ip package , Constructs a complete IP packet or a list of fragments if the payload exceeds the MTU.
+  -doc """
+  make a ip package , Constructs a complete IP packet or a list of fragments if the payload exceeds the MTU.
 
 
 Arguments:
@@ -859,8 +819,13 @@ ip_package_creater(Header, Payload, Args) ->
            destination_addr = DestinationAddr,
            option = Options} =
     Header,
-  Opt = make_options(Options, <<>>, Args),
+  Opt0 = make_options(Options, <<>>, Args),
   % Completion header , padding zero
+  % TODO:
+  Opt = case Opt0 of
+    <<0:8>> -> <<>>;
+    _ -> Opt0
+  end,
   Opt1 = padding_for_option(Opt),
   IHL = (20 + size(Opt1)) div 4,
   Size = size(Payload),
@@ -887,7 +852,7 @@ ip_package_creater(Header, Payload, Args) ->
 
   Header1 = Header#ip_head{total_length = TotalLength, ihl = IHL, header_checksum = Checksum},
   {<<HeaderBin1/binary, Payload/binary>>, Header1}.
-
+padding_for_option(<<>>) -> <<>>;
 padding_for_option(Opt) ->
   ZeroCount = (4 - (size(Opt) rem 4)) rem 4,
 

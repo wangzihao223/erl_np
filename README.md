@@ -152,8 +152,6 @@ loop_send(Tun, T) ->
 
 运行程序 监听目标网卡
 
-
-
 1. 首先 执行main函数开启网卡，然后`iptables` 做 **源地址伪装（SNAT）**
 
 ```bash
@@ -165,8 +163,6 @@ iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -o eth0 -j MASQUERADE
 - `-o eth0`：出接口是物理网卡
 
 - `MASQUERADE`：让包使用本机的 `192.168.31.55` 地址发出去
-
-
 
 - 用户态构造的 IP 包（源 IP 是 10.0.0.1，目标是 192.168.31.252（另一台主机））写入 tun0；
 
@@ -204,7 +200,6 @@ listening on enp1s0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
 
 目标主机
 
-
 ```bash
 03:22:55.009497 IP 192.168.31.55 > 192.168.31.252: ICMP echo request, id 1, seq 0, length 12
 03:22:55.009517 IP 192.168.31.252 > 192.168.31.55: ICMP echo reply, id 1, seq 0, length 12
@@ -218,12 +213,61 @@ listening on enp1s0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
 03:22:59.012924 IP 192.168.31.252 > 192.168.31.55: ICMP echo reply, id 1, seq 4, length 12
 03:23:00.014159 IP 192.168.31.55 > 192.168.31.252: ICMP echo request, id 1, seq 5, length 12
 03:23:00.014166 IP 192.168.31.252 > 192.168.31.55: ICMP echo reply, id 1, seq 5, length 12
-
 ```
 
+```bash
+sudo iptables -t nat -L POSTROUTING -v -n --line-numbers
+sudo iptables -t nat -D POSTROUTING 1
+sudo iptables -L FORWARD -v -n
+iptables -t nat -A POSTROUTING -o enp1s0 -s 10.0.0.0/24 -j MASQUERADE
+sudo iptables -A FORWARD -i tun0 -o eth0 -j ACCEPT
+```
 
+## UDP
 
+实现向另一台主机发送udp包
 
+1. `sudo sysctl -w net.ipv4.ip_forward=1` 开启内核转发
 
+2. `sudo iptables -t nat -A POSTROUTING -o eth0 -s 10.0.0.0/24 -j MASQUERADE`  源地址转换
+
+3. `sudo iptables -A FORWARD -i tun0 -o eth0 -j ACCEPT` 允许转发
+
+```erlang
+main() ->
+  Tun0 = tuntap:tuntap_init(), % 创建一个tun设备
+  %此函数将使用模式`mode`和可选的设备单元`unit`来配置设备。
+  tuntap:tuntap_start(Tun0, 16#0002, 257),
+  tuntap:tuntap_up_nif(Tun0),
+  tuntap:tuntap_set_ip_nif(Tun0, "10.0.0.2", 24),
+  Handler = udp:make_handler(Tun0, "10.0.0.3", 8888, "192.168.31.252", 8888),
+
+  loop_send(Handler, 0).
+
+loop_send(_Handler, 30) ->
+  ok;
+loop_send(Handler, T) ->
+  Handler1 = udp:send(Handler, <<"hello,world">>),
+  timer:sleep(1000), %每一秒发一次
+  loop_send(Handler1, T + 1).
+```
+
+运行程序，观察本地端口
+
+`sudo tcpdump -i enp1s0 -nn -vv udp port 8888`
+
+```bash
+18:31:40.872298 IP (tos 0x1,ECT(1), ttl 63, id 11, offset 0, flags [DF], proto UDP (17), length 39)
+    192.168.31.55.8888 > 192.168.31.252.8888: [udp sum ok] UDP, length 11
+18:31:41.873249 IP (tos 0x1,ECT(1), ttl 63, id 12, offset 0, flags [DF], proto UDP (17), length 39)
+    192.168.31.55.8888 > 192.168.31.252.8888: [udp sum ok] UDP, length 11
+```
+
+同样可以观看另一个计算机端口是否收到udp包
+`nc -ul 8888`
+
+```bash
+hello,world
+```
 
 

@@ -15,7 +15,7 @@ loop_send(Tun) ->
   loop_send(Tun, 0).
 
 %发10个包
-loop_send(_Tun, 20) ->
+loop_send(_Tun, 100) ->
   ok;
 loop_send(Tun, T) ->
   Config =
